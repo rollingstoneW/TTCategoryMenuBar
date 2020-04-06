@@ -105,7 +105,7 @@
         return;
     }
     
-    NSMutableArray *array;
+    NSMutableArray *array = nil;
     if (item.shouldUseSelectedOptionTitle && [self.delegate respondsToSelector:@selector(categoryMenuBar:titleForSelectedOptions:atCategory:)]) {
         array = [NSMutableArray array];
         NSArray *options = self.options[category];
@@ -148,7 +148,7 @@
                 selectedTitle = title;
             }
         } else {
-            selectedTitle = [self firstSelectedTitleInCategory:category];
+            selectedTitle = [self firstSelectedTitleInCategory:category withSelectedOptions:options];
         }
         if (selectedTitle) {
             [button setAttributedTitle:selectedTitle forState:UIControlStateSelected];
@@ -389,10 +389,12 @@
     }
 }
 
-- (NSAttributedString *)firstSelectedTitleInCategory:(NSInteger)index {
+
+
+- (NSAttributedString *)firstSelectedTitleInCategory:(NSInteger)index withSelectedOptions:(NSArray *)selectedOptions {
     if (index >= self.options.count) { return nil; }
     
-    NSArray *options = self.options[index];
+    NSArray *options = selectedOptions ?: self.options[index];
     for (TTCategoryMenuBarOptionItem *child in options) {
         NSAttributedString *title = [self firstSelectedTitleInOption:child];
         if (title) {
@@ -409,6 +411,7 @@
         }
         return NO;
     };
+    // 子选项全选，或者没有子选项并选中了自己
     if (item.isChildrenAllSelected || (!item.childOptions.count && isOptionSelected(item))) {
         return item.selectedAttributedTitle ?: [[NSAttributedString alloc] initWithString:item.title ?: @"" attributes:item.selectedTitleAttributes];
     }

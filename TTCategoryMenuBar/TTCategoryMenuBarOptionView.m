@@ -486,7 +486,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
         self.listOptions[indexPath.row].isSelected = YES;
         [self refreshCellAtRow:indexPath.row inTableView:tableView];
         [self selectedOptionsDidChange];
-        if ([self.delegate respondsToSelector:@selector(categoryBarOptionView:didCommitOptions:)]) {
+        if ([self.delegate respondsToSelector:@selector(categoryBarOptionView:didCommitOptions:)] && !self.doneButton) {
             [self.delegate categoryBarOptionView:self didCommitOptions:@[self.listOptions[indexPath.row]]];
         }
         return;
@@ -666,7 +666,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
             if (currentOption.isSelectAll) {
                 [self selectOption:currentOption allOptions:childOptions isSelect:YES inTableView:tableView];
             }
-            if ([self.delegate respondsToSelector:@selector(categoryBarOptionView:didCommitOptions:)]) {
+            if ([self.delegate respondsToSelector:@selector(categoryBarOptionView:didCommitOptions:)] && !self.doneButton) {
                 [self.delegate categoryBarOptionView:self didCommitOptions:@[currentOption]];
             }
             return;
@@ -1581,7 +1581,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
         item.isSelected = YES;
         [self refreshItemAtIndexPath:indexPath];
         [self selectedOptionsDidChange];
-        if ([self.delegate respondsToSelector:@selector(categoryBarOptionView:didCommitOptions:)]) {
+        if ([self.delegate respondsToSelector:@selector(categoryBarOptionView:didCommitOptions:)] && !self.doneButton) {
             [self.delegate categoryBarOptionView:self didCommitOptions:@[sectionItem]];
         }
         return;
