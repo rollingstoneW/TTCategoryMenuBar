@@ -26,7 +26,7 @@
 - (BOOL)loadSelectedChild {
     if (self.childOptions.count) {
         for (TTCategoryMenuBarOptionItem *child in self.childOptions) {
-            if ([child loadSelectedChild]) {
+            if ([child loadSelectedChild] && ![self.selectedChildOptions containsObject:child]) {
                 [self.selectedChildOptions addObject:child];
             }
         }
