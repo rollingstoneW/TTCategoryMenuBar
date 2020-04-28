@@ -130,10 +130,11 @@
 
 - (void)updateItem:(__kindof TTCategoryMenuBarCategoryItem *)item atCategory:(NSInteger)category selectedOptions:(NSArray *)options {
     UIButton *button = [self menuButtonItemAtCategory:category];
-    NSAttributedString *normal = item.attributedTitle ?: [[NSAttributedString alloc] initWithString:item.title ?: @""
+    NSAttributedString *normal = item.attributedTitle ? [[NSAttributedString alloc] initWithString:item.attributedTitle.string attributes:item.titleAttributes]: [[NSAttributedString alloc] initWithString:item.title ?: @""
                                                                                         attributes:item.titleAttributes];
-    NSAttributedString *selected = item.selectedAttributedTitle ?:
+    NSAttributedString *selected = item.selectedAttributedTitle ? [[NSAttributedString alloc] initWithString:item.selectedAttributedTitle.string attributes:item.selectedTitleAttributes]:
     [[NSAttributedString alloc] initWithString:item.title ?: @"" attributes:item.selectedTitleAttributes];
+    
     [button setAttributedTitle:normal forState:UIControlStateNormal];
     [button setAttributedTitle:selected forState:UIControlStateSelected];
     [button setAttributedTitle:selected forState:UIControlStateSelected | UIControlStateHighlighted];
