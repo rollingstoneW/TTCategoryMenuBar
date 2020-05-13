@@ -617,7 +617,9 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     [self.firstTableView selectRowAtIndexPath:[NSIndexPath indexPathForRow:selectedRow inSection:0]
                                      animated:NO
                                scrollPosition:self.categoryItem.scrollToFirstSelectedOptionPotisionWhenShow];
-    [self reloadSecondAtRow:selectedRow];
+    if (self.listOptions.count > selectedRow) {
+        [self reloadSecondAtRow:selectedRow];
+    }
 }
 
 - (void)reloadSecondAtRow:(NSInteger)row {
@@ -795,7 +797,10 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
 }
 
 - (NSArray<TTCategoryMenuBarListOptionChildItem *> *)showingChildOptions {
-    return self.listOptions[self.firstTableView.indexPathForSelectedRow.row].childOptions;
+    if (self.listOptions.count > self.firstTableView.indexPathForSelectedRow.row) {
+        return self.listOptions[self.firstTableView.indexPathForSelectedRow.row].childOptions;
+    }
+    return nil;
 }
 
 - (CGSize)sizeThatFits:(CGSize)size {
