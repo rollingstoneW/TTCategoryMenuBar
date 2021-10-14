@@ -99,6 +99,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) UIEdgeInsets contentInset;
 
 /**
+ 支持自定义选项视图的父视图
+ */
+@property (nonatomic, strong, nullable) UIView *optionViewContainerView;
+
+/**
  统一初始化方法
 
  @param items 分类模型

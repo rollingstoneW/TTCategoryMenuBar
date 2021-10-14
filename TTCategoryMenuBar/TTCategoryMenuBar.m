@@ -53,7 +53,6 @@
 
 @property (nonatomic, strong) UIView *barItemContainerView;
 @property (nonatomic, strong) TTCategoryMenuBarBackgroundView *backgroundView;
-@property (nonatomic, strong) UIView *optionContainerView;
 
 @property (nonatomic,   weak) TTCategoryMenuBarOptionView *currentOptionView;
 @property (nonatomic,   weak) UIButton *currentButtonItem;
@@ -84,6 +83,11 @@
         }];
     }
     return self;
+}
+
+- (void)removeFromSuperview {
+    [super removeFromSuperview];
+    [self.backgroundView removeFromSuperview];
 }
 
 - (void)layoutSubviews {
@@ -289,7 +293,7 @@
         [self loadBackgroundViewIfNeeded];
         self.currentOptionView = optionView;
         optionView.delegate = self;
-        [self insertSubview:self.backgroundView belowSubview:self.barItemContainerView];
+//        [self insertSubview:self.backgroundView belowSubview:self.barItemContainerView];
         [self.backgroundView addSubview:optionView];
 
         [optionView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -470,20 +474,13 @@
         self.backgroundView.tapedBlock = ^{
             [weakSelf dismissOptionView:YES];
         };
-        [self addSubview:self.backgroundView];
+        [(self.optionViewContainerView ?: self) addSubview:self.backgroundView];
         [self.backgroundView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.top.equalTo(self.mas_bottom);
+            make.top.equalTo(self.barItemContainerView.mas_bottom);
             make.left.right.equalTo(self);
-            make.bottom.equalTo(self.superview);
+            make.bottom.equalTo(self.optionViewContainerView ?: self.superview);
         }];
     }
-}
-
-- (UIView *)optionContainerView {
-    if (!_optionContainerView) {
-        _optionContainerView = [[UIView alloc] init];
-    }
-    return _optionContainerView;
 }
 
 - (CGSize)sizeThatFits:(CGSize)size {
