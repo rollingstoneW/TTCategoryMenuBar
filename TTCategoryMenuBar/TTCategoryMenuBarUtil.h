@@ -12,7 +12,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 UIKIT_EXTERN const CGFloat TTCategoryMenuBarHeight;
 UIKIT_EXTERN const CGFloat TTCategoryMenuBarOptionTailIndent;
-UIKIT_EXTERN const CGFloat TTCategoryMenuBarDoneButtonHeight;
 
 #define TTCategoryMenuBarScreenWidth  [[UIScreen mainScreen] bounds].size.width
 #define TTCategoryMenuBarScreenHeight [[UIScreen mainScreen] bounds].size.height

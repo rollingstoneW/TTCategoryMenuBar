@@ -300,16 +300,17 @@
             make.bottom.equalTo(self.barItemContainerView.mas_bottom);
             make.left.right.equalTo(self);
         }];
+        
+        if ([self.delegate respondsToSelector:@selector(categoryMenuBar:willShowOptionView:atCategory:)]) {
+            [self.delegate categoryMenuBar:self willShowOptionView:optionView atCategory:self.currentButtonItem.tag];
+        }
+        
         [self layoutIfNeeded];
         
         [optionView mas_remakeConstraints:^(MASConstraintMaker *make) {
             make.top.equalTo(self.barItemContainerView.mas_bottom).offset(0);
             make.left.right.equalTo(self);
         }];
-        
-        if ([self.delegate respondsToSelector:@selector(categoryMenuBar:willShowOptionView:atCategory:)]) {
-            [self.delegate categoryMenuBar:self willShowOptionView:optionView atCategory:self.currentButtonItem.tag];
-        }
         
         self.userInteractionEnabled = NO;
         [UIView animateWithDuration:.25 animations:^{
@@ -475,12 +476,13 @@
             [weakSelf dismissOptionView:YES];
         };
         [(self.optionViewContainerView ?: self) addSubview:self.backgroundView];
-        [self.backgroundView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.top.equalTo(self.barItemContainerView.mas_bottom);
-            make.left.right.equalTo(self);
-            make.bottom.equalTo(self.optionViewContainerView ?: self.superview);
-        }];
     }
+    
+    [self.backgroundView mas_remakeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.barItemContainerView.mas_bottom);
+        make.left.right.equalTo(self);
+        make.bottom.equalTo(self.optionViewContainerView ?: self.superview);
+    }];
 }
 
 - (CGSize)sizeThatFits:(CGSize)size {

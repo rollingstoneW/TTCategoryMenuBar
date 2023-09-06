@@ -185,6 +185,8 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
 
 @property (nonatomic, assign) BOOL shouldInvalidateIntrnsicContentSize;
 
+@property (nonatomic, strong, readwrite) UIView *bottomView;
+
 @end
 
 @implementation TTCategoryMenuBarOptionView
@@ -229,31 +231,44 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
 - (void)loadSubviews {
     UIButton *doneButton;
     UIButton *resetButton;
+    
+    self.bottomView = [[UIView alloc] init];
+    self.bottomView.backgroundColor = UIColor.whiteColor;
+    [self addSubview:self.bottomView];
+    
     if (self.categoryItem.childAllowsMultipleSelection) {
         doneButton = [self loadDoneButton];
-        [self addSubview:doneButton];
+        [self.bottomView addSubview:doneButton];
         self.doneButton = doneButton;
     }
     if (self.categoryItem.allowsReset) {
         resetButton = [self loadResetButton];
-        [self addSubview:resetButton];
+        [self.bottomView addSubview:resetButton];
         self.resetButton = resetButton;
     }
+    
+    [self.bottomView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.bottom.equalTo(self);
+    }];
     [resetButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.bottom.equalTo(self);
-        make.height.equalTo(@(TTCategoryMenuBarDoneButtonHeight));
+        make.top.equalTo(self.bottomView).offset(self.categoryItem.optionViewBottomButtonsPaddintTop);
+        make.left.equalTo(self.bottomView);
+        make.bottom.equalTo(self.bottomView).priorityHigh();
+        make.height.equalTo(@(self.categoryItem.bottomButtonHeight));
         if (!doneButton) {
-            make.right.equalTo(self);
+            make.right.equalTo(self.bottomView);
         }
     }];
     [doneButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.bottom.equalTo(self);
-        make.height.equalTo(@(TTCategoryMenuBarDoneButtonHeight));
+        make.top.equalTo(self.bottomView).offset(self.categoryItem.optionViewBottomButtonsPaddintTop);
+        make.right.equalTo(self.bottomView);
+        make.bottom.equalTo(self.bottomView).priorityHigh();
+        make.height.equalTo(@(self.categoryItem.bottomButtonHeight));
         if (resetButton) {
             make.left.equalTo(resetButton.mas_right);
             make.width.equalTo(resetButton);
         } else {
-            make.left.equalTo(self);
+            make.left.equalTo(self.bottomView);
         }
     }];
 }
@@ -428,14 +443,38 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     return containerViewHeight <= 0 ? TTCategoryMenuBarScreenHeight : containerViewHeight;
 }
 
-- (CGFloat)bottomButtonHeight {
+- (CGFloat)bottomViewHeight {
+    CGFloat bottomViewHeight = 0;
     UIButton *bottomButton = self.doneButton ?: self.resetButton;
-    for (NSLayoutConstraint *constraint in bottomButton.constraints) {
-        if (constraint.firstAttribute == NSLayoutAttributeHeight) {
-            return constraint.constant;
-        }
+    if (bottomButton) {
+        bottomViewHeight = self.categoryItem.bottomButtonHeight + self.categoryItem.optionViewBottomButtonsPaddintTop;
     }
-    return bottomButton ? TTCategoryMenuBarDoneButtonHeight : 0;
+    if (self.bottomAccessoryView) {
+        bottomViewHeight += self.bottomAccessoryView.frame.size.height;
+    }
+    return bottomViewHeight;
+}
+
+- (void)setBottomAccessoryView:(UIView *)bottomAccessoryView {
+    if (_bottomAccessoryView == bottomAccessoryView) {
+        return;
+    }
+    [_bottomAccessoryView removeFromSuperview];
+    _bottomAccessoryView = bottomAccessoryView;
+    
+    if (bottomAccessoryView) {
+        [bottomAccessoryView setContentCompressionResistancePriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisVertical];
+        [self.bottomView addSubview:bottomAccessoryView];
+        UIButton *bottomButton = self.doneButton ?: self.resetButton;
+        [bottomAccessoryView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.right.bottom.equalTo(self.bottomView);
+            if (bottomButton) {
+                make.top.equalTo(bottomButton.mas_bottom);
+            } else {
+                make.top.equalTo(self.bottomView);
+            }
+        }];
+    }
 }
 
 @end
@@ -449,12 +488,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     [self addSubview:self.tableView];
     [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.top.equalTo(self);
-        UIButton *bottomButton = self.doneButton ?: self.resetButton;
-        if (bottomButton) {
-            make.bottom.equalTo(bottomButton.mas_top).offset(-self.categoryItem.optionViewBottomButtonsPaddintTop);
-        } else {
-            make.bottom.equalTo(self);
-        }
+        make.bottom.equalTo(self.bottomView.mas_top);
         if (self.listCategoryItem.optionListWidth) {
             make.width.equalTo(@(self.listCategoryItem.optionListWidth));
         } else {
@@ -555,10 +589,10 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     for (TTCategoryMenuBarListOptionItem *option in self.listOptions) {
         listHeight += option.optionRowHeight;
     }
-    CGFloat bottomButtonHeight = [self bottomButtonHeight];
+    CGFloat bottomViewHeight = [self bottomViewHeight];
     CGFloat maxHeight = MIN(self.listCategoryItem.optionViewPreferredMaxHeight, [self maxHeight]);
 
-    return CGSizeMake(TTCategoryMenuBarScreenWidth, MIN(maxHeight, listHeight + bottomButtonHeight + self.categoryItem.optionViewBottomButtonsPaddintTop));
+    return CGSizeMake(TTCategoryMenuBarScreenWidth, MIN(maxHeight, listHeight + bottomViewHeight + self.categoryItem.optionViewBottomButtonsPaddintTop));
 }
 
 @end
@@ -575,12 +609,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     
     [self.firstTableView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.top.equalTo(self);
-        UIButton *bottomButton = self.doneButton ?: self.resetButton;
-        if (bottomButton) {
-            make.bottom.equalTo(bottomButton.mas_top).offset(-self.categoryItem.optionViewBottomButtonsPaddintTop);
-        } else {
-            make.bottom.equalTo(self);
-        }
+        make.bottom.equalTo(self.bottomView.mas_top);
         if (self.listCategoryItem.optionListWidth) {
             make.width.equalTo(@(self.listCategoryItem.optionListWidth));
         } else {
@@ -589,12 +618,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     }];
     [self.secondTableView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.firstTableView);
-        UIButton *bottomButton = self.doneButton ?: self.resetButton;
-        if (bottomButton) {
-            make.bottom.equalTo(bottomButton.mas_top).offset(-self.categoryItem.optionViewBottomButtonsPaddintTop);
-        } else {
-            make.bottom.equalTo(self);
-        }
+        make.bottom.equalTo(self.bottomView.mas_top);
         make.left.equalTo(self.firstTableView.mas_right);
         make.right.equalTo(self);
     }];
@@ -817,9 +841,9 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
         secondListHeight += option.optionRowHeight;
     }
     CGFloat listHeight = MAX(firstListHeight, secondListHeight);
-    CGFloat bottomButtonHeight = [self bottomButtonHeight];
+    CGFloat bottomViewHeight = [self bottomViewHeight];
     CGFloat maxHeight = MIN(self.listCategoryItem.optionViewPreferredMaxHeight, [self maxHeight]);
-    return CGSizeMake(TTCategoryMenuBarScreenWidth, MIN(maxHeight, listHeight + bottomButtonHeight + self.categoryItem.optionViewBottomButtonsPaddintTop));
+    return CGSizeMake(TTCategoryMenuBarScreenWidth, MIN(maxHeight, listHeight + bottomViewHeight + self.categoryItem.optionViewBottomButtonsPaddintTop));
 }
 
 @end
@@ -835,18 +859,10 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     [self addSubview:self.firstTableView];
     [self addSubview:self.secondTableView];
     [self addSubview:self.thirdTableView];
-    
-    UIButton *bottomButton = self.doneButton ?: self.resetButton;
-    void(^makeBottomConstraint)(MASConstraintMaker *make) = ^(MASConstraintMaker *make) {
-        if (bottomButton) {
-            make.bottom.equalTo(bottomButton.mas_top).offset(-self.categoryItem.optionViewBottomButtonsPaddintTop);
-        } else {
-            make.bottom.equalTo(self);
-        }
-    };
+
     [self.firstTableView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.top.equalTo(self);
-        makeBottomConstraint(make);
+        make.bottom.equalTo(self.bottomView.mas_top);
         if (self.listCategoryItem.optionListWidth) {
             make.width.equalTo(@(self.listCategoryItem.optionListWidth));
         } else {
@@ -855,7 +871,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     }];
     [self.secondTableView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.firstTableView);
-        makeBottomConstraint(make);
+        make.bottom.equalTo(self.bottomView.mas_top);
         make.left.equalTo(self.firstTableView.mas_right);
         if (self.listCategoryItem.optionListWidth) {
             make.width.equalTo(@(self.listCategoryItem.secondOptionListWidth));
@@ -865,7 +881,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     }];
     [self.thirdTableView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.firstTableView);
-        makeBottomConstraint(make);
+        make.bottom.equalTo(self.bottomView.mas_top);
         make.left.equalTo(self.secondTableView.mas_right);
         make.right.equalTo(self);
     }];
@@ -1113,9 +1129,9 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
         thirdListHeight += option.optionRowHeight;
     }
     CGFloat listHeight = MAX(MAX(firstListHeight, secondListHeight), thirdListHeight);
-    CGFloat bottomButtonHeight = [self bottomButtonHeight];
+    CGFloat bottomViewHeight = [self bottomViewHeight];
     CGFloat maxHeight = MIN([self maxHeight], self.listCategoryItem.optionViewPreferredMaxHeight);
-    return CGSizeMake(TTCategoryMenuBarScreenWidth, MIN(maxHeight, listHeight + bottomButtonHeight + self.categoryItem.optionViewBottomButtonsPaddintTop));
+    return CGSizeMake(TTCategoryMenuBarScreenWidth, MIN(maxHeight, listHeight + bottomViewHeight + self.categoryItem.optionViewBottomButtonsPaddintTop));
 }
 
 @end
@@ -1430,6 +1446,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
         self.contentView.layer.borderWidth = option.borderWidth;
     }
     _option = option;
+    self.textLabel.numberOfLines = option.titleNumberOflines;
     if (option.isSelected) {
         self.imageView.image = option.icon;
         self.textLabel.attributedText = [option.selectedAttributedTitle ?: [NSAttributedString alloc] initWithString:(option.title ?: @"")
@@ -1474,11 +1491,9 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     [self addSubview:collectionView];
     self.collectionView = collectionView;
     
-    [self addSubview:self.collectionView];
     [collectionView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.left.right.equalTo(self);
-        UIButton *bottomButton = self.doneButton ?: self.resetButton;
-        make.bottom.equalTo(self).offset(bottomButton ? -TTCategoryMenuBarDoneButtonHeight : 0);
+        make.bottom.equalTo(self.bottomView.mas_top);
     }];
     
     [self reloadData];
@@ -1714,9 +1729,9 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     [self.collectionView layoutIfNeeded];
     // 布局完成前提前获取collectionView的frame
     CGFloat listHeight = [self.collectionView contentSize].height;
-    CGFloat bottomButtonHeight = [self bottomButtonHeight];
+    CGFloat bottomViewHeight = [self bottomViewHeight];
     CGFloat maxHeight = MIN(self.sectionCategoryItem.optionViewPreferredMaxHeight, [self maxHeight]);
-    return CGSizeMake(TTCategoryMenuBarScreenWidth, MIN(maxHeight, listHeight + bottomButtonHeight + self.categoryItem.optionViewBottomButtonsPaddintTop));
+    return CGSizeMake(TTCategoryMenuBarScreenWidth, MIN(maxHeight, listHeight + bottomViewHeight + self.categoryItem.optionViewBottomButtonsPaddintTop));
 }
 
 @end
