@@ -171,6 +171,7 @@ typedef NS_ENUM(NSUInteger, TTCategoryMenuBarCategoryStyle) {
 @property (nonatomic, strong) UIColor *selectItemBackgroundColor; // 选中的背景色，默认f5f5f5
 
 @property (nonatomic, assign) BOOL unselectsOthersWhenSelectAll; // 选中全选时是否取消其他选项，默认为YES
+@property (nonatomic, assign) BOOL autoSelectAllOption; // 当其他选项全部选中时，是否自动选中全选选项，默认YES
 @property (nonatomic, assign) BOOL atLeastOneSelected; // 是否要至少一个被选中，默认NO
 
 @end

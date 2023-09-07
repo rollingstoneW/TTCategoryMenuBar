@@ -1640,9 +1640,13 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
                 }
             }
             if (isSelectAlled) {
-                // 全部选中了则选中全选的cell
-                selectAllOption.isSelected = YES;
-                [self selectAllOptions:sectionItem.childOptions isSelect:YES inSection:indexPath.section];
+                if (sectionItem.autoSelectAllOption) {
+                    // 全部选中了则选中全选的cell
+                    selectAllOption.isSelected = YES;
+                    [self selectAllOptions:sectionItem.childOptions isSelect:YES inSection:indexPath.section];
+                } else {
+                    [self refreshItemAtIndexPath:indexPath];
+                }
             } else {
                 selectAllOption.isSelected = NO;
                 NSIndexPath *selectAllIndexPath = [NSIndexPath indexPathForRow:0 inSection:indexPath.section];

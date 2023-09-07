@@ -117,6 +117,7 @@
         _itemBackgroundColor = TTCategoryMenuBarBgColor();
         _selectItemBackgroundColor = TTCategoryMenuBarBgColor();
         _unselectsOthersWhenSelectAll = YES;
+        _autoSelectAllOption = YES;
     }
     return self;
 }
