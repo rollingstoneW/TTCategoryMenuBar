@@ -53,6 +53,7 @@ typedef NS_ENUM(NSUInteger, TTCategoryMenuBarCategoryStyle) {
 @property (nonatomic, assign) BOOL isSelected; // 是否被选中
 @property (nonatomic, assign) UITableViewScrollPosition scrollToFirstSelectedOptionPotisionWhenShow; // 展示选项列表的时候自动滚动到第一个选中的选项的位置，默认是UITableViewScrollPositionMiddle，展示在中间
 
+@property (nonatomic, assign) CGFloat optionViewFixedHeight; // 固定选项视图高度，设置之后optionViewPreferredMaxHeight不再生效
 @property (nonatomic, assign) CGFloat optionViewPreferredMaxHeight; // 选项视图的最大高度，默认屏幕高度和底部与父视图对齐的最小值
 @property (nonatomic, assign) CGFloat bottomButtonHeight; // 底部按钮高度，默认44
 @property (nonatomic, assign) CGFloat optionViewBottomButtonsPaddintTop; // 选项视图底部按钮距离上面的间隙，默认为0

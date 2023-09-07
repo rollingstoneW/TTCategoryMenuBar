@@ -585,6 +585,9 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
 }
 
 - (CGSize)intrinsicContentSize {
+    if (self.categoryItem.optionViewFixedHeight > 0) {
+        return CGSizeMake(TTCategoryMenuBarScreenWidth, self.categoryItem.optionViewFixedHeight);
+    }
     CGFloat listHeight = 0;
     for (TTCategoryMenuBarListOptionItem *option in self.listOptions) {
         listHeight += option.optionRowHeight;
@@ -592,7 +595,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     CGFloat bottomViewHeight = [self bottomViewHeight];
     CGFloat maxHeight = MIN(self.listCategoryItem.optionViewPreferredMaxHeight, [self maxHeight]);
 
-    return CGSizeMake(TTCategoryMenuBarScreenWidth, MIN(maxHeight, listHeight + bottomViewHeight + self.categoryItem.optionViewBottomButtonsPaddintTop));
+    return CGSizeMake(TTCategoryMenuBarScreenWidth, MIN(maxHeight, listHeight + bottomViewHeight));
 }
 
 @end
@@ -832,6 +835,9 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
 }
 
 - (CGSize)intrinsicContentSize {
+    if (self.categoryItem.optionViewFixedHeight > 0) {
+        return CGSizeMake(TTCategoryMenuBarScreenWidth, self.categoryItem.optionViewFixedHeight);
+    }
     CGFloat firstListHeight = 0;
     CGFloat secondListHeight = 0;
     for (TTCategoryMenuBarListOptionItem *option in self.listOptions) {
@@ -843,7 +849,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     CGFloat listHeight = MAX(firstListHeight, secondListHeight);
     CGFloat bottomViewHeight = [self bottomViewHeight];
     CGFloat maxHeight = MIN(self.listCategoryItem.optionViewPreferredMaxHeight, [self maxHeight]);
-    return CGSizeMake(TTCategoryMenuBarScreenWidth, MIN(maxHeight, listHeight + bottomViewHeight + self.categoryItem.optionViewBottomButtonsPaddintTop));
+    return CGSizeMake(TTCategoryMenuBarScreenWidth, MIN(maxHeight, listHeight + bottomViewHeight));
 }
 
 @end
@@ -1116,6 +1122,9 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
 }
 
 - (CGSize)intrinsicContentSize {
+    if (self.categoryItem.optionViewFixedHeight > 0) {
+        return CGSizeMake(TTCategoryMenuBarScreenWidth, self.categoryItem.optionViewFixedHeight);
+    }
     CGFloat firstListHeight = 0;
     CGFloat secondListHeight = 0;
     CGFloat thirdListHeight = 0;
@@ -1131,7 +1140,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     CGFloat listHeight = MAX(MAX(firstListHeight, secondListHeight), thirdListHeight);
     CGFloat bottomViewHeight = [self bottomViewHeight];
     CGFloat maxHeight = MIN([self maxHeight], self.listCategoryItem.optionViewPreferredMaxHeight);
-    return CGSizeMake(TTCategoryMenuBarScreenWidth, MIN(maxHeight, listHeight + bottomViewHeight + self.categoryItem.optionViewBottomButtonsPaddintTop));
+    return CGSizeMake(TTCategoryMenuBarScreenWidth, MIN(maxHeight, listHeight + bottomViewHeight));
 }
 
 @end
@@ -1729,13 +1738,16 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
 }
 
 - (CGSize)intrinsicContentSize {
+    if (self.categoryItem.optionViewFixedHeight > 0) {
+        return CGSizeMake(TTCategoryMenuBarScreenWidth, self.categoryItem.optionViewFixedHeight);
+    }
     self.collectionView.frame = CGRectMake(0, 0, TTCategoryMenuBarScreenWidth, 0);
     [self.collectionView layoutIfNeeded];
     // 布局完成前提前获取collectionView的frame
     CGFloat listHeight = [self.collectionView contentSize].height;
     CGFloat bottomViewHeight = [self bottomViewHeight];
     CGFloat maxHeight = MIN(self.sectionCategoryItem.optionViewPreferredMaxHeight, [self maxHeight]);
-    return CGSizeMake(TTCategoryMenuBarScreenWidth, MIN(maxHeight, listHeight + bottomViewHeight + self.categoryItem.optionViewBottomButtonsPaddintTop));
+    return CGSizeMake(TTCategoryMenuBarScreenWidth, MIN(maxHeight, listHeight + bottomViewHeight));
 }
 
 @end
