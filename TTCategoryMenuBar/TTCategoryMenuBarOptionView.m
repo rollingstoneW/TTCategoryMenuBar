@@ -307,7 +307,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
 }
 
 - (void)reset {
-    for (TTCategoryMenuBarOptionItem *option in self.listOptions) {
+    for (TTCategoryMenuBarOptionItem *option in self.options) {
         [option reset];
     }
     [self selectedOptionsDidChange];
