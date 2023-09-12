@@ -1610,8 +1610,9 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
         item.isSelected = YES;
         [self refreshItemAtIndexPath:indexPath];
         [self selectedOptionsDidChange];
-        if ([self.delegate respondsToSelector:@selector(categoryBarOptionView:didCommitOptions:)] && !self.doneButton) {
-            [self.delegate categoryBarOptionView:self didCommitOptions:@[sectionItem]];
+        BOOL shouldCommit = !self.doneButton || item.autoCommitWhenSelected;
+        if ([self.delegate respondsToSelector:@selector(categoryBarOptionView:didCommitOptions:)] && shouldCommit) {
+            [self.delegate categoryBarOptionView:self didCommitOptions:self.selectedOptions];
         }
         return;
     }

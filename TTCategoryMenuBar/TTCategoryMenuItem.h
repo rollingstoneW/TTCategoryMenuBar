@@ -201,6 +201,8 @@ typedef NS_ENUM(NSUInteger, TTCategoryMenuBarCategoryStyle) {
 
 @property (nonatomic, assign) BOOL enabled; // Item是否可点击，默认YES
 
+@property (nonatomic, assign) BOOL autoCommitWhenSelected; // 选中时是否自动提交
+
 @end
 
 
