@@ -236,7 +236,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     self.bottomView.backgroundColor = UIColor.whiteColor;
     [self addSubview:self.bottomView];
     
-    if (self.categoryItem.childAllowsMultipleSelection) {
+    if (self.categoryItem.childAllowsMultipleSelection || self.categoryItem.showDoneButton) {
         doneButton = [self loadDoneButton];
         [self.bottomView addSubview:doneButton];
         self.doneButton = doneButton;

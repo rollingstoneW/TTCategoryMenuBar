@@ -33,6 +33,7 @@ typedef NS_ENUM(NSUInteger, TTCategoryMenuBarCategoryStyle) {
 @property (nonatomic, assign) TTCategoryMenuBarCategoryStyle style; // 样式，默认是TTCategoryMenuBarCategoryStyleNoneData，没有选项
 @property (nonatomic, assign) BOOL childAllowsMultipleSelection; // 子选项是否支持多选，默认为NO，最后一排此属性才会生效，YES时展示确认按钮
 @property (nonatomic, assign) BOOL allowsReset; // 是否支持重置，支持底部会有重置按钮，默认为NO
+@property (nonatomic, assign) BOOL showDoneButton; // 是否展示确认按钮，默认位NO，与childAllowsMultipleSelection是或关系
 
 @property (nonatomic,   copy) NSString *title; // 标题
 @property (nonatomic,   copy) NSDictionary *titleAttributes; // 标题富文本样式，默认字体14，颜色333333

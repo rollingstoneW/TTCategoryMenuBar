@@ -68,6 +68,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (UIButton *)loadDoneButton; // 加载完成按钮，子类可自定义
 - (UIButton *)loadResetButton; // 加载重置按钮，子类可自定义
 
+- (void)selectedOptionsDidChange; // 选中数据发生变化
+
 - (void)commit; // done按钮事件
 - (void)reset; // reset按钮事件，会重置数据
 
