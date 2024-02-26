@@ -58,6 +58,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)categoryMenuBar:(TTCategoryMenuBar *)menuBar optionView:(TTCategoryMenuBarOptionView *)optionView selectedOptionsDidChange:(NSArray *)selectedOptions;
 
 /**
+ 选项列表，点击哪个cell
+ */
+- (void)categoryMenuBar:(TTCategoryMenuBar *)menuBar didSelectAtSection:(NSInteger)section index:(NSInteger)index atCategory:(NSInteger)category;
+
+/**
+ 选项列表，取消了哪个cell
+ */
+- (void)categoryMenuBar:(TTCategoryMenuBar *)menuBar didDeselectAtSection:(NSInteger)section index:(NSInteger)index atCategory:(NSInteger)category;
+
+/**
  为选项列表选中的内容设置分类的标题，可以是NSString、NSAttributedString
 @param options 选中的数据数组
 */

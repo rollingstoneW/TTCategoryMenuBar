@@ -32,6 +32,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)categoryBarOptionView:(TTCategoryMenuBarOptionView *)optionView selectedOptionsDidChange:(NSArray *)selectedOptions;
 
+/**
+ 选中了哪一栏的那一行
+ */
+- (void)categoryBarOptionView:(TTCategoryMenuBarOptionView *)optionView didSelectAtSection:(NSInteger)colume index:(NSInteger)index;
+
+/**
+ 取消了哪一栏的那一行
+ */
+- (void)categoryBarOptionView:(TTCategoryMenuBarOptionView *)optionView didDeselectAtSection:(NSInteger)colume index:(NSInteger)index;
+
 @end
 
 @protocol TTCategoryMenuBarSectionListDataSource <NSObject>

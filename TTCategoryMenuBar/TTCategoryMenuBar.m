@@ -395,7 +395,15 @@
     }
 }
 
+- (void)categoryBarOptionView:(TTCategoryMenuBarOptionView *)optionView didSelectAtSection:(NSInteger)section index:(NSInteger)index {
+    if ([self.delegate respondsToSelector:@selector(categoryMenuBar:didSelectAtSection:index:atCategory:)]) {
+        [self.delegate categoryMenuBar:self didSelectAtSection:section index:index atCategory:self.currentButtonItem.tag];
+    }
+}
 
+- (void)categoryBarOptionView:(TTCategoryMenuBarOptionView *)optionView didDeselectAtSection:(NSInteger)section index:(NSInteger)index {
+    [self.delegate categoryMenuBar:self didDeselectAtSection:section index:index atCategory:self.currentButtonItem.tag];
+}
 
 - (NSAttributedString *)firstSelectedTitleInCategory:(NSInteger)index withSelectedOptions:(NSArray *)selectedOptions {
     if (index >= self.options.count) { return nil; }

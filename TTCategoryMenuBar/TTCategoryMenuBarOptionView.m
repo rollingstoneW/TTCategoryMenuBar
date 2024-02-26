@@ -345,6 +345,18 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     return [self optionAtIndexPath:indexPath inTableView:tableView].optionRowHeight;
 }
 
+- (void)didSelectAtSection:(NSInteger)section index:(NSInteger)index {
+    if ([self.delegate respondsToSelector:@selector(categoryBarOptionView:didSelectAtSection:index:)]) {
+        [self.delegate categoryBarOptionView:self didSelectAtSection:section index:index];
+    }
+}
+
+- (void)didDeselectAtSection:(NSInteger)section index:(NSInteger)index {
+    if ([self.delegate respondsToSelector:@selector(categoryBarOptionView:didDeselectAtSection:index:)]) {
+        [self.delegate categoryBarOptionView:self didDeselectAtSection:section index:index];
+    }
+}
+
 - (NSArray *)selectedOptions {
     if (_selectedOptions) {
         return _selectedOptions;
@@ -484,6 +496,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
 - (void)loadSubviews {
     [super loadSubviews];
     self.tableView = [self loadTableView];
+    self.tableView.tag = 0;
     self.tableView.allowsMultipleSelection = self.listCategoryItem.childAllowsMultipleSelection;
     [self addSubview:self.tableView];
     [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -515,6 +528,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [super didSelectAtSection:tableView.tag index:indexPath.row];
     // 如果不支持多选，直接消失
     if (!self.listCategoryItem.childAllowsMultipleSelection) {
         self.listOptions[indexPath.row].isSelected = YES;
@@ -557,6 +571,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
 }
 
 - (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [super didDeselectAtSection:tableView.tag index:indexPath.row];
     TTCategoryMenuBarListOptionItem *currentOption = self.listOptions[indexPath.row];
     currentOption.isSelected = NO;
     // 取消全选
@@ -606,7 +621,9 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     [super loadSubviews];
     
     self.firstTableView = [self loadTableView];
+    self.firstTableView.tag = 0;
     self.secondTableView = [self loadTableView];
+    self.secondTableView.tag = 1;
     [self addSubview:self.firstTableView];
     [self addSubview:self.secondTableView];
     
@@ -673,6 +690,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [super didSelectAtSection:tableView.tag index:indexPath.row];
     if (tableView == self.firstTableView) {
         // 当前在选中，不做处理
         if (self.listOptions[indexPath.row].isSelected) {
@@ -729,6 +747,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
 }
 
 - (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [super didDeselectAtSection:tableView.tag index:indexPath.row];
     if (tableView == self.firstTableView) {
         self.listOptions[indexPath.row].isSelected = NO;
         [self refreshCellAtRow:indexPath.row inTableView:tableView];
@@ -860,8 +879,11 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     [super loadSubviews];
     
     self.firstTableView = [self loadTableView];
+    self.firstTableView.tag = 0;
     self.secondTableView = [self loadTableView];
+    self.secondTableView.tag = 1;
     self.thirdTableView = [self loadTableView];
+    self.thirdTableView.tag = 2;
     [self addSubview:self.firstTableView];
     [self addSubview:self.secondTableView];
     [self addSubview:self.thirdTableView];
@@ -966,6 +988,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [super didSelectAtSection:tableView.tag index:indexPath.row];
     if (tableView == self.firstTableView) {
         // 当前在选中，不做处理
         if (self.listOptions[indexPath.row].isSelected) {
@@ -1036,6 +1059,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
 }
 
 - (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [super didDeselectAtSection:tableView.tag index:indexPath.row];
     if (tableView == self.firstTableView) {
         self.listOptions[indexPath.row].isSelected = NO;
         [self refreshCellAtRow:indexPath.row inTableView:tableView];
@@ -1601,6 +1625,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    [super didSelectAtSection:indexPath.section index:indexPath.item];
     TTCategoryMenuBarSectionItem *sectionItem = self.sectionOptions[indexPath.section];
     NSArray<TTCategoryMenuBarSectionOptionItem *> *childOptions = (NSArray<TTCategoryMenuBarSectionOptionItem *> *)sectionItem.childOptions;
     TTCategoryMenuBarSectionOptionItem *item = sectionItem.childOptions[indexPath.row];
@@ -1672,6 +1697,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
+    [super didDeselectAtSection:indexPath.section index:indexPath.item];
     TTCategoryMenuBarSectionItem *sectionItem = self.sectionOptions[indexPath.section];
     NSArray<TTCategoryMenuBarSectionOptionItem *> *childOptions = (NSArray<TTCategoryMenuBarSectionOptionItem *> *)sectionItem.childOptions;
     TTCategoryMenuBarSectionOptionItem *currentOption = childOptions[indexPath.row];
