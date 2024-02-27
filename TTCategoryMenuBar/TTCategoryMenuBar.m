@@ -402,7 +402,9 @@
 }
 
 - (void)categoryBarOptionView:(TTCategoryMenuBarOptionView *)optionView didDeselectAtSection:(NSInteger)section index:(NSInteger)index {
-    [self.delegate categoryMenuBar:self didDeselectAtSection:section index:index atCategory:self.currentButtonItem.tag];
+    if ([self.delegate respondsToSelector:@selector(categoryMenuBar:didDeselectAtSection:index:atCategory:)]) {
+        [self.delegate categoryMenuBar:self didDeselectAtSection:section index:index atCategory:self.currentButtonItem.tag];
+    }
 }
 
 - (NSAttributedString *)firstSelectedTitleInCategory:(NSInteger)index withSelectedOptions:(NSArray *)selectedOptions {
