@@ -327,7 +327,18 @@
     if (!self.currentOptionView || !self.currentOptionView.superview) {
         return;
     }
-    self.currentButtonItem.selected = self.currentOptionView.categoryItem.isSelected = self.currentOptionView.selectedOptions.count > 0 || self.currentOptionView.categoryItem.style == TTCategoryMenuBarCategoryStyleNoneData;
+    BOOL isSelected = self.currentOptionView.selectedOptions.count > 0 || self.currentOptionView.categoryItem.style == TTCategoryMenuBarCategoryStyleNoneData;
+    self.currentOptionView.categoryItem.isSelected = isSelected;
+    if (isSelected) {
+        self.currentButtonItem.selected = YES;
+    } else {
+        if (self.currentOptionView.categoryItem.shouldUseSelectedTitleWhenUnselected) {
+            self.currentButtonItem.selected = YES;
+        } else {
+            self.currentButtonItem.selected = NO;
+        }
+    }
+    
     [self.currentOptionView clearSelectedOptions];
     [self.currentOptionView mas_updateConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.barItemContainerView.mas_bottom).offset(-self.currentOptionView.frame.size.height);

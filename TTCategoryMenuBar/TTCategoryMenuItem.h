@@ -41,6 +41,7 @@ typedef NS_ENUM(NSUInteger, TTCategoryMenuBarCategoryStyle) {
 @property (nonatomic,   copy) NSAttributedString *attributedTitle; // 富文本标题，如果设置这个会忽略titleAttributes
 @property (nonatomic,   copy) NSAttributedString *selectedAttributedTitle; // 选中的富文本标题，如果设置这个会忽略selectedTitleAttributes
 @property (nonatomic, assign) BOOL shouldUseSelectedOptionTitle; // 是否使用选中选项的标题作为标题，默认NO
+@property (nonatomic, assign) BOOL shouldUseSelectedTitleWhenUnselected; // 关闭下拉框时，是否显示选中的标题
 
 @property (nonatomic, strong) UIImage *icon; // 箭头图片
 @property (nonatomic, strong) UIImage *selectedIcon; // 选中的箭头图片
