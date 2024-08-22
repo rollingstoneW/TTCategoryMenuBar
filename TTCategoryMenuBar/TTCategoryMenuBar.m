@@ -298,7 +298,7 @@
 
         [optionView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.bottom.equalTo(self.barItemContainerView.mas_bottom);
-            make.left.right.equalTo(self);
+            make.left.right.equalTo(self.backgroundView);
         }];
         
         if ([self.delegate respondsToSelector:@selector(categoryMenuBar:willShowOptionView:atCategory:)]) {
@@ -309,7 +309,7 @@
         
         [optionView mas_remakeConstraints:^(MASConstraintMaker *make) {
             make.top.equalTo(self.barItemContainerView.mas_bottom).offset(0);
-            make.left.right.equalTo(self);
+            make.left.right.equalTo(self.backgroundView);
         }];
         
         self.userInteractionEnabled = NO;
@@ -478,6 +478,7 @@
 }
 
 - (void)loadBackgroundViewIfNeeded {
+    UIView *containerView = self.optionViewContainerView ?: self;
     if (!self.backgroundView && self.superview) {
         self.backgroundView = [[TTCategoryMenuBarBackgroundView alloc] init];
         self.backgroundView.alpha = 0;
@@ -485,12 +486,12 @@
         self.backgroundView.tapedBlock = ^{
             [weakSelf dismissOptionView:YES];
         };
-        [(self.optionViewContainerView ?: self) addSubview:self.backgroundView];
+        [containerView addSubview:self.backgroundView];
     }
     
     [self.backgroundView mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.barItemContainerView.mas_bottom);
-        make.left.right.equalTo(self);
+        make.left.right.equalTo(containerView);
         make.bottom.equalTo(self.optionViewContainerView ?: self.superview);
     }];
 }
