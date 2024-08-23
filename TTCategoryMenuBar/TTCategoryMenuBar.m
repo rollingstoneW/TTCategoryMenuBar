@@ -329,15 +329,17 @@
     }
     BOOL isSelected = self.currentOptionView.selectedOptions.count > 0 || self.currentOptionView.categoryItem.style == TTCategoryMenuBarCategoryStyleNoneData;
     self.currentOptionView.categoryItem.isSelected = isSelected;
+    self.currentButtonItem.selected = isSelected;
     if (isSelected) {
         self.currentButtonItem.selected = YES;
     } else {
-        if (self.currentOptionView.categoryItem.shouldUseSelectedTitleWhenUnselected) {
+        if (self.currentOptionView.categoryItem.shouldUseSelectedTitleWhenUnselected && self.currentOptionView.categoryItem.hasSubmitData) {
             self.currentButtonItem.selected = YES;
         } else {
             self.currentButtonItem.selected = NO;
         }
     }
+    [self layoutBarItem:self.currentButtonItem space:self.currentOptionView.categoryItem.iconTitleSpace];
     
     [self.currentOptionView clearSelectedOptions];
     [self.currentOptionView mas_updateConstraints:^(MASConstraintMaker *make) {
@@ -391,6 +393,9 @@
              didCommitOptions:(NSArray<TTCategoryMenuBarOptionItem *> *)options {
     if ([self.delegate respondsToSelector:@selector(categoryMenuBar:didCommitCategoryOptions:atCategory:)]) {
         [self.delegate categoryMenuBar:self didCommitCategoryOptions:options atCategory:self.currentButtonItem.tag];
+    }
+    if (options.count > 0) {
+        categoryBarOptionView.categoryItem.hasSubmitData = YES;
     }
     [self dismissOptionView:YES];
 }

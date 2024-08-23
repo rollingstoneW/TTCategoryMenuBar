@@ -62,6 +62,8 @@ typedef NS_ENUM(NSUInteger, TTCategoryMenuBarCategoryStyle) {
 
 @property (nonatomic, strong) id extraData; // 额外数据
 
+@property (nonatomic, assign) BOOL hasSubmitData; // 提交过数据
+
 @end
 
 /**
