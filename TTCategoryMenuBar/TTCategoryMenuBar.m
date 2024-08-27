@@ -172,7 +172,7 @@
         NSAssert(NO, @"items数量要和options数量保持一致");
         return;
     }
-    [self dismissOptionView:NO];
+    [self dismissOptionView:NO isCommit:NO];
     [self.barItemContainerView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
 
     UIButton *lastButton;
@@ -219,7 +219,7 @@
     BOOL isDimming = self.backgroundView.alpha == 1;
     BOOL isButtonSelected = button.isSelected;
     UIButton *currentButtonItem = self.currentButtonItem;
-    [self dismissOptionView:(button == self.currentButtonItem || item.style == TTCategoryMenuBarCategoryStyleNoneData)];
+    [self dismissOptionView:(button == self.currentButtonItem || item.style == TTCategoryMenuBarCategoryStyleNoneData) isCommit:NO];
 
     if (item.style == TTCategoryMenuBarCategoryStyleNoneData) {
         if (button.isSelected) {
@@ -323,7 +323,7 @@
     }
 }
 
-- (void)dismissOptionView:(BOOL)animated {
+- (void)dismissOptionView:(BOOL)animated isCommit:(BOOL)isCommit {
     if (!self.currentOptionView || !self.currentOptionView.superview) {
         return;
     }
@@ -345,6 +345,17 @@
     [self.currentOptionView mas_updateConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.barItemContainerView.mas_bottom).offset(-self.currentOptionView.frame.size.height);
     }];
+    
+    
+    dispatch_block_t callDidDismiss = ^{
+        NSInteger idx = [self.items indexOfObject:self.currentOptionView.categoryItem];
+        if (idx != NSNotFound) {
+            if ([self.delegate respondsToSelector:@selector(categoryMenuBar:didDismissOptionView:atCategory:isCommit:)]) {
+                [self.delegate categoryMenuBar:self didDismissOptionView:self.currentOptionView atCategory:idx isCommit:isCommit];
+            }
+        }
+    };
+    
     if (animated) {
         self.userInteractionEnabled = NO;
         [UIView animateWithDuration:.25 animations:^{
@@ -354,10 +365,12 @@
         } completion:^(BOOL finished) {
             self.currentButtonItem = nil;
             self.userInteractionEnabled = YES;
+            callDidDismiss();
             [self.currentOptionView removeFromSuperview];
         }];
     } else {
         [self resetItemIcon:self.currentButtonItem];
+        callDidDismiss();
         [self.currentOptionView removeFromSuperview];
         self.backgroundView.alpha = 0;
         self.currentButtonItem = nil;
@@ -397,7 +410,7 @@
     if (options.count > 0) {
         categoryBarOptionView.categoryItem.hasSubmitData = YES;
     }
-    [self dismissOptionView:YES];
+    [self dismissOptionView:YES isCommit:YES];
 }
 
 - (void)categoryBarOptionView:(TTCategoryMenuBarOptionView *)optionView selectedOptionsDidChange:(NSArray *)selectedOptions {
@@ -500,7 +513,7 @@
         self.backgroundView.alpha = 0;
         __weak __typeof(self) weakSelf = self;
         self.backgroundView.tapedBlock = ^{
-            [weakSelf dismissOptionView:YES];
+            [weakSelf dismissOptionView:YES isCommit:NO];
         };
         [containerView addSubview:self.backgroundView];
     }

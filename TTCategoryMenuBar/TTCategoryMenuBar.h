@@ -32,6 +32,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)categoryMenuBar:(TTCategoryMenuBar *)menuBar willShowOptionView:(TTCategoryMenuBarOptionView *)optionView atCategory:(NSInteger)category;
 
 /**
+ 隐藏了选项列表
+ */
+- (void)categoryMenuBar:(TTCategoryMenuBar *)menuBar didDismissOptionView:(TTCategoryMenuBarOptionView *)optionView atCategory:(NSInteger)category isCommit:(BOOL)isCommit;
+
+/**
  提交了某个分类的数据，非单排分类
  */
 - (void)categoryMenuBar:(TTCategoryMenuBar *)menuBar didCommitCategoryOptions:(NSArray<TTCategoryMenuBarOptionItem *> *)options atCategory:(NSInteger)category;
