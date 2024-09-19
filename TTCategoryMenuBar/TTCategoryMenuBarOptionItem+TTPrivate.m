@@ -6,8 +6,13 @@
 //
 
 #import "TTCategoryMenuBarOptionItem+TTPrivate.h"
-#import <YYModel/NSObject+YYModel.h>
 #import <objc/runtime.h>
+
+#if __has_include(<YYModel/NSObject+YYModel.h>)
+#import <YYModel/NSObject+YYModel.h>
+#elif __has_include(<YYKit/NSObject+YYModel.h>)
+#import <YYKit/NSObject+YYModel.h>
+#endif
 
 @implementation TTCategoryMenuBarOptionItem (TTPrivate)
 
@@ -165,7 +170,11 @@
 }
 
 - (instancetype)deepCopy {
+#if __has_include(<YYModel/NSObject+YYModel.h>)
     TTCategoryMenuBarOptionItem *copyItem = [self yy_modelCopy];
+#elif __has_include(<YYKit/NSObject+YYModel.h>)
+    TTCategoryMenuBarOptionItem *copyItem = [self modelCopy];
+#endif
     if (copyItem.childOptions) {
         NSMutableArray *copyChildOptions = [NSMutableArray array];
         [self.childOptions enumerateObjectsUsingBlock:^(__kindof TTCategoryMenuBarOptionItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
