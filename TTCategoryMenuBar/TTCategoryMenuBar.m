@@ -357,7 +357,7 @@
             
             if (self.options.count > idx) {
                 BOOL shouldResetToLastSubmit = self.currentOptionView.categoryItem.shouldResetToLastSubmitWhenDismiss
-                || self.currentOptionView.categoryItem.lastSubmitedOptions;
+                && self.currentOptionView.categoryItem.lastSubmitedOptions;
                 // 重置，把模型还原为上次提交时记录的模型
                 if (!isCommit && shouldResetToLastSubmit) {
                     NSMutableArray *newOptionsArray = self.options.mutableCopy;
