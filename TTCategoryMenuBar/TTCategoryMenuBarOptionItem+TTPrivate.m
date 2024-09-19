@@ -127,7 +127,7 @@
 - (BOOL)_unselectedOthersWhenSelected:(TTCategoryMenuBarOptionItem *)selectAllItem {
     if ([selectAllItem isKindOfClass:[TTCategoryMenuBarListOptionItem class]]) {
         return [(TTCategoryMenuBarListOptionItem *)self unselectsOthersWhenSelected];
-    } else if ([self isKindOfClass:[TTCategoryMenuBarSectionItem class]]) {
+    } else if ([selectAllItem isKindOfClass:[TTCategoryMenuBarSectionItem class]]) {
         return [(TTCategoryMenuBarSectionItem *)self unselectsOthersWhenSelectAll];
     }
     return NO;
