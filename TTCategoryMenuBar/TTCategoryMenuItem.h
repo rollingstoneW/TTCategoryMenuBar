@@ -9,6 +9,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "TTCategoryMenuBarOptionButtonConfig.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -63,6 +64,12 @@ typedef NS_ENUM(NSUInteger, TTCategoryMenuBarCategoryStyle) {
 @property (nonatomic, strong) id extraData; // 额外数据
 
 @property (nonatomic, assign) BOOL hasSubmitData; // 提交过数据
+
+@property (nonatomic, assign) BOOL shouldResetToLastSubmitWhenDismiss; // 当选项列表在非提交情况下隐藏的时候，是否还原数据
+
+@property (nonatomic, strong) TTCategoryMenubarOptionButtonsConfig *buttonsConfig; // 按钮配置数据
+
+- (TTCategoryMenuBarCategoryResetStyle)resetStyle;
 
 @end
 

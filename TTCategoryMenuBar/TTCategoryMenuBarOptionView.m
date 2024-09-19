@@ -229,48 +229,151 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
 }
 
 - (void)loadSubviews {
-    UIButton *doneButton;
-    UIButton *resetButton;
-    
     self.bottomView = [[UIView alloc] init];
     self.bottomView.backgroundColor = UIColor.whiteColor;
     [self addSubview:self.bottomView];
-    
-    if (self.categoryItem.childAllowsMultipleSelection || self.categoryItem.showDoneButton) {
-        doneButton = [self loadDoneButton];
-        [self.bottomView addSubview:doneButton];
-        self.doneButton = doneButton;
-    }
-    if (self.categoryItem.allowsReset) {
-        resetButton = [self loadResetButton];
-        [self.bottomView addSubview:resetButton];
-        self.resetButton = resetButton;
-    }
-    
     [self.bottomView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.bottom.equalTo(self);
     }];
-    [resetButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.bottomView).offset(self.categoryItem.optionViewBottomButtonsPaddintTop);
-        make.left.equalTo(self.bottomView);
-        make.bottom.equalTo(self.bottomView).priorityHigh();
-        make.height.equalTo(@(self.categoryItem.bottomButtonHeight));
-        if (!doneButton) {
-            make.right.equalTo(self.bottomView);
-        }
+    
+    UIView *topLine = [[UIView alloc] init];
+    topLine.backgroundColor = self.categoryItem.buttonsConfig.buttonContainerTopBorderColor;
+    [self.bottomView addSubview:topLine];
+    [topLine mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.top.equalTo(self.bottomView);
+        make.height.equalTo(@(self.categoryItem.buttonsConfig.buttonContainerTopBorderWidth));
     }];
-    [doneButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.bottomView).offset(self.categoryItem.optionViewBottomButtonsPaddintTop);
-        make.right.equalTo(self.bottomView);
-        make.bottom.equalTo(self.bottomView).priorityHigh();
-        make.height.equalTo(@(self.categoryItem.bottomButtonHeight));
-        if (resetButton) {
-            make.left.equalTo(resetButton.mas_right);
-            make.width.equalTo(resetButton);
-        } else {
+    
+    if (self.categoryItem.buttonsConfig.buttons.count > 0) {
+        UIButton *lastButton;
+        for (NSInteger i = 0; i < self.categoryItem.buttonsConfig.buttons.count; i++) {
+            TTCategoryMenubarOptionButtonConfig *config = self.categoryItem.buttonsConfig.buttons[i];
+            UIButton *button = [self loadButtonWithConfig:config];
+            [self.bottomView addSubview:button];
+            
+            if (config.style == TTCategoryMenubarOptionButtonStyleReset) {
+                [button addTarget:self action:@selector(reset) forControlEvents:UIControlEventTouchUpInside];
+                self.resetButton = button;
+            } else {
+                [button addTarget:self action:@selector(commit) forControlEvents:UIControlEventTouchUpInside];
+                self.doneButton = button;
+            }
+            
+            [button mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.top.equalTo(self.bottomView).offset(self.categoryItem.buttonsConfig.buttonTop);
+                make.bottom.equalTo(self.bottomView).offset(-self.categoryItem.buttonsConfig.buttonBottom).priorityHigh();
+                
+                if (lastButton) {
+                    make.left.greaterThanOrEqualTo(lastButton.mas_right).offset(self.categoryItem.buttonsConfig.buttonGap);
+                } else {
+                    make.left.equalTo(self.bottomView).offset(self.categoryItem.buttonsConfig.insetHorizontal);
+                }
+                
+                if (i == self.categoryItem.buttonsConfig.buttons.count - 1) {
+                    make.right.equalTo(self.bottomView).offset(-self.categoryItem.buttonsConfig.insetHorizontal);
+                }
+                
+                make.height.equalTo(@(config.height));
+                if (config.widthRatio > 0) {
+                    make.width.equalTo(self.bottomView).multipliedBy(config.widthRatio).priorityHigh();
+                } else if (config.width > 0) {
+                    make.width.equalTo(@(config.width)).priorityHigh();
+                }
+            }];
+            
+            lastButton = button;
+        }
+        
+        [self resetButtonsWithSelectedOptions:self.selectedOptions];
+    } else {
+        UIButton *doneButton;
+        UIButton *resetButton;
+        if (self.categoryItem.childAllowsMultipleSelection || self.categoryItem.showDoneButton) {
+            doneButton = [self loadDoneButton];
+            [self.bottomView addSubview:doneButton];
+            self.doneButton = doneButton;
+            
+            
+        }
+        if (self.categoryItem.allowsReset) {
+            resetButton = [self loadResetButton];
+            [self.bottomView addSubview:resetButton];
+            self.resetButton = resetButton;
+        }
+        
+        [resetButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.equalTo(self.bottomView).offset(self.categoryItem.optionViewBottomButtonsPaddintTop);
             make.left.equalTo(self.bottomView);
+            make.bottom.equalTo(self.bottomView).priorityHigh();
+            make.height.equalTo(@(self.categoryItem.bottomButtonHeight));
+            if (!doneButton) {
+                make.right.equalTo(self.bottomView);
+            }
+        }];
+        
+        [doneButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.equalTo(self.bottomView).offset(self.categoryItem.optionViewBottomButtonsPaddintTop);
+            make.right.equalTo(self.bottomView);
+            make.bottom.equalTo(self.bottomView).priorityHigh();
+            make.height.equalTo(@(self.categoryItem.bottomButtonHeight));
+            if (resetButton) {
+                make.left.equalTo(resetButton.mas_right);
+                make.width.equalTo(resetButton);
+            } else {
+                make.left.equalTo(self.bottomView);
+            }
+        }];
+    }
+}
+
+- (UIButton *)loadButtonWithConfig:(TTCategoryMenubarOptionButtonConfig *)config {
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+    
+    TTCategoryMenubarOptionButtonBackgroundConfig *backgroundConfig = [config backgroundConfigForState:TTCategoryMenubarOptionButtonStateNormal];
+    [self setBackground:backgroundConfig forButton:button];
+    
+    TTCategoryMenubarOptionButtonTitleConfig *titleConfig = [config titleConfigForState:TTCategoryMenubarOptionButtonStateNormal];
+    [self setTitle:titleConfig forButton:button selectedCount:0];
+    
+    TTCategoryMenubarOptionButtonIconConfig *iconConfig = [config iconConfigForState:TTCategoryMenubarOptionButtonStateNormal];
+    [self setIcon:iconConfig forButton:button];
+
+    return button;
+}
+
+- (void)resetButtonsWithSelectedOptions:(NSArray *)selectedOptions {
+    NSInteger totalCount = 0;
+    for (TTCategoryMenuBarOptionItem *option in selectedOptions) {
+        totalCount += [self totalChildrenCountWithOption:option];
+    }
+    TTCategoryMenubarOptionButtonState state = totalCount > 0 ? TTCategoryMenubarOptionButtonStateHasSelectedItems : TTCategoryMenubarOptionButtonStateNormal;
+    
+    if (self.resetButton) {
+        TTCategoryMenubarOptionButtonConfig *resetConfig = [self.categoryItem.buttonsConfig buttonConfigForStyle:TTCategoryMenubarOptionButtonStyleReset];
+        if (resetConfig) {
+            TTCategoryMenubarOptionButtonBackgroundConfig *backgroundConfig = [resetConfig backgroundConfigForState:state];
+            [self setBackground:backgroundConfig forButton:self.resetButton];
+            
+            TTCategoryMenubarOptionButtonTitleConfig *titleConfig = [resetConfig titleConfigForState:state];
+            [self setTitle:titleConfig forButton:self.resetButton selectedCount:totalCount];
+            
+            TTCategoryMenubarOptionButtonIconConfig *iconConfig = [resetConfig iconConfigForState:state];
+            [self setIcon:iconConfig forButton:self.resetButton];
         }
-    }];
+    }
+    if (self.doneButton) {
+        TTCategoryMenubarOptionButtonConfig *doneConfig = [self.categoryItem.buttonsConfig buttonConfigForStyle:TTCategoryMenubarOptionButtonStyleDone];
+        if (doneConfig) {
+            TTCategoryMenubarOptionButtonBackgroundConfig *backgroundConfig = [doneConfig backgroundConfigForState:state];
+            [self setBackground:backgroundConfig forButton:self.doneButton];
+            
+            TTCategoryMenubarOptionButtonTitleConfig *titleConfig = [doneConfig titleConfigForState:state];
+            [self setTitle:titleConfig forButton:self.doneButton selectedCount:totalCount];
+            
+            TTCategoryMenubarOptionButtonIconConfig *iconConfig = [doneConfig iconConfigForState:state];
+            [self setIcon:iconConfig forButton:self.doneButton];
+        }
+    }
 }
 
 - (UIButton *)loadDoneButton {
@@ -291,6 +394,88 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     return button;
 }
 
+
+- (void)setBackground:(TTCategoryMenubarOptionButtonBackgroundConfig *)backgroundConfig forButton:(UIButton *)button {
+    if (!backgroundConfig) {
+        return;
+    }
+    button.backgroundColor = backgroundConfig.backgroundColor;
+    button.layer.borderColor = backgroundConfig.borderColor.CGColor;
+    button.layer.borderWidth = backgroundConfig.borderWidth;
+    button.layer.cornerRadius = backgroundConfig.cornerRadius;
+}
+
+- (void)setTitle:(TTCategoryMenubarOptionButtonTitleConfig *)titleConfig forButton:(UIButton *)button selectedCount:(NSInteger)selectedCount {
+    if (!titleConfig) {
+        return;
+    }
+    [button setTitleColor:titleConfig.titleColor forState:UIControlStateNormal];
+    button.titleLabel.font = titleConfig.titleFont;
+    
+    if (titleConfig.customTitle) {
+        [button setAttributedTitle:titleConfig.customTitle(selectedCount) forState:UIControlStateNormal];
+    } else if (titleConfig.titleFormat) {
+        if ([titleConfig.titleFormat containsString:@"%ld"]) {
+            [button setTitle:[NSString stringWithFormat:titleConfig.titleFormat, selectedCount] forState:UIControlStateNormal];
+        }
+    } else {
+        [button setTitle:titleConfig.title forState:UIControlStateNormal];
+    }
+}
+
+- (void)setIcon:(TTCategoryMenubarOptionButtonIconConfig *)iconConfig forButton:(UIButton *)button {
+    if (!iconConfig) {
+        return;
+    }
+    [button setImage:iconConfig.image forState:UIControlStateNormal];
+    [self resetButtonSpace:button];
+    
+    if (iconConfig.image) {
+        [self layoutButton:button space:iconConfig.iconTitleGap];
+    }
+}
+
+- (void)resetButtonSpace:(UIButton *)button {
+    button.imageEdgeInsets = UIEdgeInsetsZero;
+    button.titleEdgeInsets = UIEdgeInsetsZero;
+    button.contentEdgeInsets = UIEdgeInsetsZero;
+}
+
+- (void)layoutButton:(UIButton *)button space:(CGFloat)space {
+    CGSize imageSize = button.imageView.image.size;
+    CGSize titleSize;
+    if (button.titleLabel.attributedText) {
+        titleSize = [button.titleLabel.attributedText size];
+    } else {
+        titleSize = [button.titleLabel.text sizeWithAttributes:@{NSFontAttributeName:button.titleLabel.font}];
+    }
+
+    CGFloat insetAmount = ABS(space / 2.0);
+    if (space > 0) {
+        button.imageEdgeInsets = UIEdgeInsetsMake(0, -insetAmount, 0, insetAmount);
+        button.titleEdgeInsets = UIEdgeInsetsMake(0, insetAmount, 0, -insetAmount);
+        button.contentEdgeInsets = UIEdgeInsetsMake(0, insetAmount, 0, insetAmount);
+    } else {
+        button.titleEdgeInsets = UIEdgeInsetsMake(0, -(imageSize.width + insetAmount), 0, imageSize.width + insetAmount);
+        button.imageEdgeInsets = UIEdgeInsetsMake(0, titleSize.width + insetAmount, 0, -(titleSize.width + insetAmount));
+        button.contentEdgeInsets = UIEdgeInsetsMake(0, insetAmount, 0, insetAmount);
+    }
+}
+
+- (NSInteger)totalChildrenCountWithOption:(TTCategoryMenuBarOptionItem *)option {
+    NSInteger totalCount = 0;
+    if (option.childOptions) {
+        for (TTCategoryMenuBarOptionItem *child in option.childOptions) {
+            totalCount += [self totalChildrenCountWithOption:child];
+        }
+    } else {
+        if (option.isSelfSelected) {
+            totalCount ++;
+        }
+    }
+    return totalCount;
+}
+
 - (UITableView *)loadTableView {
     UITableView *tableView = [[UITableView alloc] init];
     tableView.delegate = self;
@@ -307,6 +492,21 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
 }
 
 - (void)reset {
+    if (self.categoryItem.resetStyle == TTCategoryMenuBarCategoryResetAll) {
+        // 全部重置
+        [self resetAll];
+    } else if (self.categoryItem.resetStyle == TTCategoryMenuBarCategoryResetToLastCommit) {
+        // 如果之前提交过，重置到上一次提交的数据
+        if (self.categoryItem.lastSubmitedOptions) {
+            [self resetToLastSubmit];
+        } else {
+            // 全部重置
+            [self resetAll];
+        }
+    }
+}
+
+- (void)resetAll {
     for (TTCategoryMenuBarOptionItem *option in self.options) {
         [option reset];
     }
@@ -317,8 +517,26 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     }
 }
 
+- (void)resetToLastSubmit {
+    NSArray *newOptions = [TTCategoryMenuBarOptionItem deepCopyOptions:self.categoryItem.lastSubmitedOptions];
+    self.options = newOptions;
+    if ([self.categoryItem isKindOfClass:[TTCategoryMenuBarListCategoryItem class]]) {
+        self.listOptions = newOptions;
+    } else if ([self.categoryItem isKindOfClass:[TTCategoryMenuBarSectionCategoryItem class]]) {
+        self.sectionOptions = newOptions;
+    }
+    [self selectedOptionsDidChange];
+    [self reloadData];
+    if ([self.delegate respondsToSelector:@selector(categoryBarOptionViewDidResetOptions:)]) {
+        [self.delegate categoryBarOptionViewDidResetOptions:self];
+    }
+}
+
 - (void)selectedOptionsDidChange {
     [self clearSelectedOptions];
+    
+    [self resetButtonsWithSelectedOptions:self.selectedOptions];
+    
     if ([self.delegate respondsToSelector:@selector(categoryBarOptionView:selectedOptionsDidChange:)]) {
         [self.delegate categoryBarOptionView:self selectedOptionsDidChange:[self selectedOptions]];
     }

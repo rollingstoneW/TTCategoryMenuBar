@@ -57,6 +57,8 @@
 @property (nonatomic,   weak) TTCategoryMenuBarOptionView *currentOptionView;
 @property (nonatomic,   weak) UIButton *currentButtonItem;
 
+@property (nonatomic, assign) BOOL isInCommiting;
+
 @end
 
 @implementation TTCategoryMenuBar
@@ -172,7 +174,7 @@
         NSAssert(NO, @"items数量要和options数量保持一致");
         return;
     }
-    [self dismissOptionView:NO isCommit:NO];
+    [self dismissOptionView:NO isCommit:self.isInCommiting];
     [self.barItemContainerView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
 
     UIButton *lastButton;
@@ -304,7 +306,6 @@
         if ([self.delegate respondsToSelector:@selector(categoryMenuBar:willShowOptionView:atCategory:)]) {
             [self.delegate categoryMenuBar:self willShowOptionView:optionView atCategory:self.currentButtonItem.tag];
         }
-        
         [self layoutIfNeeded];
         
         [optionView mas_remakeConstraints:^(MASConstraintMaker *make) {
@@ -352,6 +353,24 @@
         if (idx != NSNotFound) {
             if ([self.delegate respondsToSelector:@selector(categoryMenuBar:didDismissOptionView:atCategory:isCommit:)]) {
                 [self.delegate categoryMenuBar:self didDismissOptionView:self.currentOptionView atCategory:idx isCommit:isCommit];
+            }
+            
+            if (self.options.count > idx) {
+                BOOL shouldResetToLastSubmit = self.currentOptionView.categoryItem.shouldResetToLastSubmitWhenDismiss
+                || self.currentOptionView.categoryItem.lastSubmitedOptions;
+                // 重置，把模型还原为上次提交时记录的模型
+                if (!isCommit && shouldResetToLastSubmit) {
+                    NSMutableArray *newOptionsArray = self.options.mutableCopy;
+                    NSArray *newOptions = [TTCategoryMenuBarOptionItem deepCopyOptions:self.currentOptionView.categoryItem.lastSubmitedOptions];
+                    [newOptionsArray replaceObjectAtIndex:idx withObject:newOptions];
+                    self.options = newOptionsArray.copy;
+                } else {
+                   // 如果有父选项打开了，但是没有选中任何子选项，把此父选项取消选中
+                    NSArray *options = self.options[idx];
+                    for (TTCategoryMenuBarOptionItem *option in options) {
+                        [option unselectedIfNoChildSelected];
+                    }
+                }
             }
         }
     };
@@ -404,6 +423,15 @@
 
 - (void)categoryBarOptionView:(__kindof TTCategoryMenuBarOptionView *)categoryBarOptionView
              didCommitOptions:(NSArray<TTCategoryMenuBarOptionItem *> *)options {
+    
+    // 不论关闭弹窗时需要还原，还是点击重置按钮时需要还原，都需要记录提交的数据
+    if (categoryBarOptionView.categoryItem.shouldResetToLastSubmitWhenDismiss
+        || categoryBarOptionView.categoryItem.resetStyle == TTCategoryMenuBarCategoryResetToLastCommit) {
+        // 使用深拷贝
+        categoryBarOptionView.categoryItem.lastSubmitedOptions = [TTCategoryMenuBarOptionItem deepCopyOptions:categoryBarOptionView.options];
+    }
+    
+    self.isInCommiting = YES;
     if ([self.delegate respondsToSelector:@selector(categoryMenuBar:didCommitCategoryOptions:atCategory:)]) {
         [self.delegate categoryMenuBar:self didCommitCategoryOptions:options atCategory:self.currentButtonItem.tag];
     }
@@ -411,6 +439,8 @@
         categoryBarOptionView.categoryItem.hasSubmitData = YES;
     }
     [self dismissOptionView:YES isCommit:YES];
+    
+    self.isInCommiting = NO;
 }
 
 - (void)categoryBarOptionView:(TTCategoryMenuBarOptionView *)optionView selectedOptionsDidChange:(NSArray *)selectedOptions {

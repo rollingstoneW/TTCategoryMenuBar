@@ -6,17 +6,24 @@
 //
 
 #import "TTCategoryMenuBarOptionItem+TTPrivate.h"
+#import <YYModel/NSObject+YYModel.h>
+#import <objc/runtime.h>
 
 @implementation TTCategoryMenuBarOptionItem (TTPrivate)
 
 - (BOOL)hasSelectedChild {
     if (self.childOptions.count) {
         for (TTCategoryMenuBarOptionItem *child in self.childOptions) {
-            if ([child isSelfSelected]) {
-                return YES;
-            }
-            if ([child hasSelectedChild]) {
-                return YES;
+            if (child.childOptions.count == 0) {
+                // 没有子列表，看自己有没有选中
+                if ([child isSelfSelected]) {
+                    return YES;
+                }
+            } else {
+                // 如果有子列表，看子列表有没有选中
+                if ([child hasSelectedChild]) {
+                    return YES;
+                }
             }
         }
     }
@@ -103,6 +110,15 @@
     self.isChildrenAllSelected = YES;
 }
 
+- (void)unselectedIfNoChildSelected {
+    if (self.childOptions.count > 0 && ![self hasSelectedChild] && self.isSelfSelected) {
+        [self _setIsSelected:NO];
+        for (TTCategoryMenuBarOptionItem *child in self.childOptions) {
+            [child unselectedIfNoChildSelected];
+        }
+    }
+}
+
 - (BOOL)_unselectedOthersWhenSelected:(TTCategoryMenuBarOptionItem *)selectAllItem {
     if ([selectAllItem isKindOfClass:[TTCategoryMenuBarListOptionItem class]]) {
         return [(TTCategoryMenuBarListOptionItem *)self unselectsOthersWhenSelected];
@@ -146,6 +162,49 @@
     for (TTCategoryMenuBarOptionItem *child in self.childOptions) {
         [child resetFrom:item];
     }
+}
+
+- (instancetype)deepCopy {
+    TTCategoryMenuBarOptionItem *copyItem = [self yy_modelCopy];
+    if (copyItem.childOptions) {
+        NSMutableArray *copyChildOptions = [NSMutableArray array];
+        [self.childOptions enumerateObjectsUsingBlock:^(__kindof TTCategoryMenuBarOptionItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            [copyChildOptions addObject:[obj deepCopy]];
+        }];
+        copyItem.childOptions = copyChildOptions.copy;
+        
+        // 如果有子选项，但是没有任何子选项被选中，就取消选中
+        if (![copyItem hasSelectedChild] && copyItem.isSelfSelected) {
+            [copyItem _setIsSelected:NO];
+        }
+//        NSLog(@"father_deep_copy_%@,selected:%ld", copyItem.title, copyItem.isSelfSelected);
+    } else {
+//        NSLog(@"child_deep_copy_%@,selected:%ld", copyItem.title, copyItem.isSelfSelected);
+    }
+    return copyItem;
+}
+
++ (NSArray<TTCategoryMenuBarOptionItem *> *)deepCopyOptions:(NSArray<TTCategoryMenuBarOptionItem *> *)options {
+    if (!options) {
+        return nil;
+    }
+    NSMutableArray *copyOptions = [NSMutableArray array];
+    [options enumerateObjectsUsingBlock:^(TTCategoryMenuBarOptionItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [copyOptions addObject:[obj deepCopy]];
+    }];
+    return copyOptions.copy;
+}
+
+@end
+
+@implementation TTCategoryMenuBarCategoryItem (TTPrivate)
+
+- (NSArray<TTCategoryMenuBarOptionItem *> *)lastSubmitedOptions {
+    return objc_getAssociatedObject(self, _cmd);
+}
+
+- (void)setLastSubmitedOptions:(NSArray<TTCategoryMenuBarOptionItem *> *)lastSubmitedOptions {
+    objc_setAssociatedObject(self, @selector(lastSubmitedOptions), lastSubmitedOptions, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
 @end

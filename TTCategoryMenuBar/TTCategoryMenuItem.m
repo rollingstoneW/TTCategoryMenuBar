@@ -29,6 +29,20 @@
     return self;
 }
 
+- (TTCategoryMenuBarCategoryResetStyle)resetStyle {
+    if (self.buttonsConfig) {
+        TTCategoryMenubarOptionButtonConfig *resetConfig = [self.buttonsConfig buttonConfigForStyle:TTCategoryMenubarOptionButtonStyleReset];
+        if (resetConfig) {
+            return resetConfig.resetStyle;
+        }
+        return TTCategoryMenuBarCategoryResetNone;
+    }
+    if (self.allowsReset) {
+        return TTCategoryMenuBarCategoryResetAll;
+    }
+    return TTCategoryMenuBarCategoryResetNone;
+}
+
 @end
 
 @implementation TTCategoryMenuBarOptionItem

@@ -28,9 +28,22 @@ NS_ASSUME_NONNULL_BEGIN
 // 全选子选项
 - (void)selectAllChild:(TTCategoryMenuBarOptionItem *)selectedAllItem;
 
+// 如果有子选项，但是没有任何子选项被选中，就取消选中
+- (void)unselectedIfNoChildSelected;
+
 // 重置
 - (void)reset;
 - (void)resetFrom:(TTCategoryMenuBarOptionItem *)item;
+
+- (instancetype)deepCopy;
+
++ (NSArray<TTCategoryMenuBarOptionItem *> *)deepCopyOptions:(NSArray<TTCategoryMenuBarOptionItem *> *)options;
+
+@end
+
+@interface TTCategoryMenuBarCategoryItem (TTPrivate)
+
+@property (nonatomic, strong, nullable) NSArray<TTCategoryMenuBarOptionItem *> *lastSubmitedOptions;
 
 @end
 
