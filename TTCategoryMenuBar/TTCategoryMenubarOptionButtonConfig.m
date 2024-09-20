@@ -117,6 +117,9 @@
     defaultConfig.buttonContainerTopBorderColor = UIColor.redColor;
     defaultConfig.buttonContainerTopBorderWidth = 0.5;
     
+    defaultConfig.shouldDisableDoneButtonWhenEmpty = YES;
+
+    
     {
         TTCategoryMenubarOptionButtonConfig *resetButton = [[TTCategoryMenubarOptionButtonConfig alloc] init];
         resetButton.resetStyle = TTCategoryMenuBarCategoryResetToLastCommit;

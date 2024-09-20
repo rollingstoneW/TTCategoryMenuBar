@@ -328,7 +328,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
 
 - (UIButton *)loadButtonWithConfig:(TTCategoryMenubarOptionButtonConfig *)config {
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-    
+    button.adjustsImageWhenDisabled = NO;
     TTCategoryMenubarOptionButtonBackgroundConfig *backgroundConfig = [config backgroundConfigForState:TTCategoryMenubarOptionButtonStateNormal];
     [self setBackground:backgroundConfig forButton:button];
     
@@ -372,6 +372,9 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
             
             TTCategoryMenubarOptionButtonIconConfig *iconConfig = [doneConfig iconConfigForState:state];
             [self setIcon:iconConfig forButton:self.doneButton];
+        }
+        if (self.categoryItem.buttonsConfig.shouldDisableDoneButtonWhenEmpty) {
+            self.doneButton.enabled = totalCount > 0;
         }
     }
 }

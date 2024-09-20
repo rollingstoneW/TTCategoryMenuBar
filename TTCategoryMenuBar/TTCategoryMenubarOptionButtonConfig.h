@@ -109,6 +109,9 @@ typedef NS_ENUM(NSUInteger, TTCategoryMenuBarCategoryResetStyle) {
 // 按钮容器顶部分割线宽度
 @property (nonatomic, assign) CGFloat buttonContainerTopBorderWidth;
 
+// 没有东西选中时，是否需要禁用确定按钮
+@property (nonatomic, assign) BOOL shouldDisableDoneButtonWhenEmpty;
+
 @property (nonatomic, copy, readonly) NSArray<TTCategoryMenubarOptionButtonConfig *> *buttons;
 
 - (void)setButtonConfig:(TTCategoryMenubarOptionButtonConfig *)config forStyle:(TTCategoryMenubarOptionButtonStyle)style;
