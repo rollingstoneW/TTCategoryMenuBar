@@ -297,7 +297,9 @@
         optionView.delegate = self;
 //        [self insertSubview:self.backgroundView belowSubview:self.barItemContainerView];
         [self.backgroundView addSubview:optionView];
-
+        // 把初始数据写入上次提交的数据
+        [self setInitialDataToLastSubmitedOptionsIfNeeded:item];
+        
         [optionView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.bottom.equalTo(self.barItemContainerView.mas_bottom);
             make.left.right.equalTo(self.backgroundView);
@@ -497,6 +499,33 @@
         }
     }
     return nil;
+}
+
+- (void)setInitialDataToLastSubmitedOptionsIfNeeded:(TTCategoryMenuBarCategoryItem *)item {
+    // 不需要在弹窗关闭时还原数据，就不用存储
+    if (!item.shouldResetToLastSubmitWhenDismiss) {
+        return;
+    }
+    // 已经记录过提交数据，不用存储
+    if (item.lastSubmitedOptions) {
+        return;
+    }
+    NSInteger idx = [self.items indexOfObject:item];
+    if (idx == NSNotFound || idx >= self.options.count) {
+        return;
+    }
+    NSArray *options = self.options[idx];
+    BOOL hasSelectedChild = NO;
+    for (TTCategoryMenuBarOptionItem *option in options) {
+        if ([option hasSelectedChild]) {
+            hasSelectedChild = YES;
+            break;
+        }
+    }
+    // 如果初始数据有选中数据，就把初始数据记录为上次提交的数据
+    if (hasSelectedChild) {
+        item.lastSubmitedOptions = [TTCategoryMenuBarOptionItem deepCopyOptions:options];
+    }
 }
 
 - (void)setContentInset:(UIEdgeInsets)contentInset {
