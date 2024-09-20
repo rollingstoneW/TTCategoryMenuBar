@@ -136,7 +136,7 @@
         [resetButton setTitleConfig:titleConfig forState:TTCategoryMenubarOptionButtonStateNormal];
         
         TTCategoryMenubarOptionButtonIconConfig *iconConfig = [[TTCategoryMenubarOptionButtonIconConfig alloc] init];
-        iconConfig.image = [UIImage imageNamed:@"first"];
+        iconConfig.image = [UIImage imageNamed:@"refresh_icon"];
         iconConfig.size = CGSizeMake(15, 15);
         iconConfig.iconTitleGap = 10;
         [resetButton setIconConfig:iconConfig forState:TTCategoryMenubarOptionButtonStateNormal];

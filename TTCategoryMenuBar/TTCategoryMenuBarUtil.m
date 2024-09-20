@@ -23,11 +23,11 @@ if (!_##name) { \
 return _##name; \
 }
 
-TTCategoryMenuBarColorFunc(TTCategoryMenuBarBgColor, 0xf5f5f5)
+TTCategoryMenuBarColorFunc(TTCategoryMenuBarBgColor, 0xf8f8f8)
 TTCategoryMenuBarColorFunc(TTCategoryMenuBarLineColor, 0xeeeeee)
 TTCategoryMenuBarColorFunc(TTCategoryMenuBarBlackColor, 0x333333)
 TTCategoryMenuBarColorFunc(TTCategoryMenuBarGrayColor, 0x666666)
-TTCategoryMenuBarColorFunc(TTCategoryMenuBarBlueColor, 0x2684ff)
+TTCategoryMenuBarColorFunc(TTCategoryMenuBarBlueColor, 0x337DFF)
 
 #undef TTCategoryMenuBarColorFunc
 
