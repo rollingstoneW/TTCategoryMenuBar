@@ -122,6 +122,7 @@
     self = [super init];
     if (self) {
         _sectionHeaderHeight = 40;
+        _sectionFooterHeight = 6;
         _sectionInset = UIEdgeInsetsMake(0, 15, 0 ,15);
         _headerInset = _sectionInset;
         _lineSpacing = 10;

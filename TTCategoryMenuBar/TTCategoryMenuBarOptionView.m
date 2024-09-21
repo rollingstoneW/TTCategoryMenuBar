@@ -402,10 +402,13 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     if (!backgroundConfig) {
         return;
     }
-    button.backgroundColor = backgroundConfig.backgroundColor;
+    [button setBackgroundImage:[self imageWithColor:backgroundConfig.backgroundColor] forState:UIControlStateNormal];
+    [button setBackgroundImage:[self imageWithColor:backgroundConfig.highlightBackgroundColor] forState:UIControlStateHighlighted];
+//    button.backgroundColor = backgroundConfig.backgroundColor;
     button.layer.borderColor = backgroundConfig.borderColor.CGColor;
     button.layer.borderWidth = backgroundConfig.borderWidth;
     button.layer.cornerRadius = backgroundConfig.cornerRadius;
+    button.layer.masksToBounds = YES;
 }
 
 - (void)setTitle:(TTCategoryMenubarOptionButtonTitleConfig *)titleConfig forButton:(UIButton *)button selectedCount:(NSInteger)selectedCount {
@@ -708,6 +711,18 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
             }
         }];
     }
+}
+
+//  颜色转换为背景图片
+- (UIImage *)imageWithColor:(UIColor *)color {
+    CGRect rect = CGRectMake(0.0f, 0.0f, 1.0f, 1.0f);
+    UIGraphicsBeginImageContext(rect.size);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextSetFillColorWithColor(context, [color CGColor]);
+    CGContextFillRect(context, rect);
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return image;
 }
 
 @end
@@ -1440,6 +1455,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
             UICollectionViewLayoutAttributes *headerAttributes = [UICollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSectionHeader withIndexPath:headerIndexPath];
             headerAttributes.frame = (CGRect){.origin = CGPointMake(0, lastBottom), .size = headerSize};
             [self.attributes addObject:headerAttributes];
+            
             lastBottom += headerSize.height;
             lastBottom += insets.top;
             
@@ -1468,6 +1484,12 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
                 }
                 [self.attributes addObject:itemAttributes];
             }
+            NSIndexPath *footerIndexPath = [NSIndexPath indexPathForItem:0 inSection:section];
+            CGSize footerSize = [self footerSizeForSection:section];
+            UICollectionViewLayoutAttributes *footerAttributes = [UICollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSectionFooter withIndexPath:footerIndexPath];
+            footerAttributes.frame = (CGRect){.origin = CGPointMake(0, lastBottom), .size = footerSize};
+            [self.attributes addObject:footerAttributes];
+            lastBottom += footerSize.height;
         }
     }
     
@@ -1502,6 +1524,13 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
         return [DelegateFlowLayout collectionView:self.collectionView layout:self referenceSizeForHeaderInSection:section];
     }
     return self.headerReferenceSize;
+}
+
+- (CGSize)footerSizeForSection:(NSInteger)section {
+    if ([self.collectionView.dataSource respondsToSelector:@selector(collectionView:layout:referenceSizeForFooterInSection:)]) {
+        return [DelegateFlowLayout collectionView:self.collectionView layout:self referenceSizeForFooterInSection:section];
+    }
+    return self.footerReferenceSize;
 }
 
 - (UIEdgeInsets)edgeInsetsInSection:(NSInteger)section {
@@ -1741,6 +1770,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     [collectionView registerClass:[TTCategoryMenuBarSectionListHeader class]
        forSupplementaryViewOfKind:UICollectionElementKindSectionHeader
               withReuseIdentifier:@"header"];
+    [collectionView registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"footer"];
     [collectionView registerClass:[TTCategoryMenuBarSectionListCell class] forCellWithReuseIdentifier:@"cell"];
     [self addSubview:collectionView];
     self.collectionView = collectionView;
@@ -1787,6 +1817,11 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     return CGSizeMake(TTCategoryMenuBarScreenWidth, sectionItem.sectionHeaderHeight);
 }
 
+-(CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout referenceSizeForFooterInSection:(NSInteger)section{
+    TTCategoryMenuBarSectionItem *sectionItem = self.sectionOptions[section];
+    return CGSizeMake(TTCategoryMenuBarScreenWidth, sectionItem.sectionFooterHeight);
+}
+
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
     TTCategoryMenuBarSectionItem *sectionItem = self.sectionOptions[section];
     return sectionItem.lineSpacing;
@@ -1820,8 +1855,12 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
         TTCategoryMenuBarSectionListHeader *header = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:@"header" forIndexPath:indexPath];
         header.section = self.sectionOptions[indexPath.section];
         return header;
+    } else {
+        UICollectionReusableView *footerView = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:@"footer" forIndexPath:indexPath];
+        footerView.backgroundColor = [UIColor whiteColor];
+        return footerView;
     }
-    return nil;
+    //    return nil;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {

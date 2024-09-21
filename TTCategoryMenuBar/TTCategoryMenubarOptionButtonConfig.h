@@ -10,6 +10,7 @@
 typedef NS_ENUM(NSUInteger, TTCategoryMenubarOptionButtonState) {
     TTCategoryMenubarOptionButtonStateNormal,
     TTCategoryMenubarOptionButtonStateHasSelectedItems,
+    TTCategoryMenubarOptionButtonStateHasSelectedItemsHighlight,
 };
 
 typedef NS_ENUM(NSUInteger, TTCategoryMenubarOptionButtonStyle) {
@@ -31,6 +32,8 @@ typedef NS_ENUM(NSUInteger, TTCategoryMenuBarCategoryResetStyle) {
 
 // 背景颜色
 @property (nonatomic, strong) UIColor *backgroundColor;
+// 高亮背景颜色
+@property (nonatomic, strong) UIColor *highlightBackgroundColor;
 // 边界颜色
 @property (nonatomic, strong) UIColor *borderColor;
 // 边界线宽度

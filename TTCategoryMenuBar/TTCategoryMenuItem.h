@@ -167,6 +167,7 @@ typedef NS_ENUM(NSUInteger, TTCategoryMenuBarCategoryStyle) {
 @interface TTCategoryMenuBarSectionItem : TTCategoryMenuBarOptionItem
 
 @property (nonatomic, assign) CGFloat sectionHeaderHeight; // 头部高度，默认40
+@property (nonatomic, assign) CGFloat sectionFooterHeight; // 尾部高度，默认6
 @property (nonatomic, assign) UIEdgeInsets headerInset; // 头部的缩紧，默认{0, 15, 0 ,15}
 @property (nonatomic, assign) UIEdgeInsets sectionInset; // 每组的缩进，默认{0, 15, 0 ,15}
 
