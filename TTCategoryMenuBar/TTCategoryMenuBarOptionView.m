@@ -504,7 +504,8 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     } else if (self.categoryItem.resetStyle == TTCategoryMenuBarCategoryResetToLastCommit) {
         // 如果之前提交过，重置到上一次提交的数据
         if (self.categoryItem.lastSubmitedOptions) {
-            [self resetToLastSubmit];
+            NSArray *newOptions = [TTCategoryMenuBarOptionItem deepCopyOptions:self.categoryItem.lastSubmitedOptions];
+            [self updateOptions:newOptions needReloadData:YES];
         } else {
             // 全部重置
             [self resetAll];
@@ -523,16 +524,17 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     }
 }
 
-- (void)resetToLastSubmit {
-    NSArray *newOptions = [TTCategoryMenuBarOptionItem deepCopyOptions:self.categoryItem.lastSubmitedOptions];
-    self.options = newOptions;
+- (void)updateOptions:(NSArray<__kindof TTCategoryMenuBarOptionItem *> *)options needReloadData:(BOOL)needReloadData {
+    self.options = options;
     if ([self.categoryItem isKindOfClass:[TTCategoryMenuBarListCategoryItem class]]) {
-        self.listOptions = newOptions;
+        self.listOptions = options;
     } else if ([self.categoryItem isKindOfClass:[TTCategoryMenuBarSectionCategoryItem class]]) {
-        self.sectionOptions = newOptions;
+        self.sectionOptions = options;
     }
     [self selectedOptionsDidChange];
-    [self reloadData];
+    if (needReloadData) {
+        [self reloadData];
+    }
     if ([self.delegate respondsToSelector:@selector(categoryBarOptionViewDidResetOptions:)]) {
         [self.delegate categoryBarOptionViewDidResetOptions:self];
     }

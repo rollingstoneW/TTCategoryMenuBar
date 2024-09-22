@@ -330,6 +330,11 @@
     if (!self.currentOptionView || !self.currentOptionView.superview) {
         return;
     }
+    NSInteger idx = [self.items indexOfObject:self.currentOptionView.categoryItem];
+    if (idx != NSNotFound) {
+        [self resetToLastSubmitedOptionsIfNeeded:idx isCommit:isCommit];
+    }
+    
     BOOL isSelected = self.currentOptionView.selectedOptions.count > 0 || self.currentOptionView.categoryItem.style == TTCategoryMenuBarCategoryStyleNoneData;
     self.currentOptionView.categoryItem.isSelected = isSelected;
     self.currentButtonItem.selected = isSelected;
@@ -355,24 +360,6 @@
         if (idx != NSNotFound) {
             if ([self.delegate respondsToSelector:@selector(categoryMenuBar:didDismissOptionView:atCategory:isCommit:)]) {
                 [self.delegate categoryMenuBar:self didDismissOptionView:self.currentOptionView atCategory:idx isCommit:isCommit];
-            }
-            
-            if (self.options.count > idx) {
-                BOOL shouldResetToLastSubmit = self.currentOptionView.categoryItem.shouldResetToLastSubmitWhenDismiss
-                && self.currentOptionView.categoryItem.lastSubmitedOptions;
-                // 重置，把模型还原为上次提交时记录的模型
-                if (!isCommit && shouldResetToLastSubmit) {
-                    NSMutableArray *newOptionsArray = self.options.mutableCopy;
-                    NSArray *newOptions = [TTCategoryMenuBarOptionItem deepCopyOptions:self.currentOptionView.categoryItem.lastSubmitedOptions];
-                    [newOptionsArray replaceObjectAtIndex:idx withObject:newOptions];
-                    self.options = newOptionsArray.copy;
-                } else {
-                   // 如果有父选项打开了，但是没有选中任何子选项，把此父选项取消选中
-                    NSArray *options = self.options[idx];
-                    for (TTCategoryMenuBarOptionItem *option in options) {
-                        [option unselectedIfNoChildSelected];
-                    }
-                }
             }
         }
     };
@@ -515,16 +502,40 @@
         return;
     }
     NSArray *options = self.options[idx];
-    BOOL hasSelectedChild = NO;
-    for (TTCategoryMenuBarOptionItem *option in options) {
-        if ([option hasSelectedChild]) {
-            hasSelectedChild = YES;
-            break;
-        }
-    }
+//    BOOL hasSelectedChild = NO;
+//    for (TTCategoryMenuBarOptionItem *option in options) {
+//        if ([option hasSelectedChild]) {
+//            hasSelectedChild = YES;
+//            break;
+//        }
+//    }
     // 如果初始数据有选中数据，就把初始数据记录为上次提交的数据
-    if (hasSelectedChild) {
+//    if (hasSelectedChild) {
         item.lastSubmitedOptions = [TTCategoryMenuBarOptionItem deepCopyOptions:options];
+//    }
+}
+
+- (void)resetToLastSubmitedOptionsIfNeeded:(NSInteger)idx isCommit:(BOOL)isCommit {
+    if (self.options.count > idx) {
+        BOOL shouldResetToLastSubmit = self.currentOptionView.categoryItem.shouldResetToLastSubmitWhenDismiss
+        && self.currentOptionView.categoryItem.lastSubmitedOptions;
+        // 重置，把模型还原为上次提交时记录的模型
+        if (!isCommit && shouldResetToLastSubmit) {
+            NSMutableArray *newOptionsArray = self.options.mutableCopy;
+            NSArray *newOptions = [TTCategoryMenuBarOptionItem deepCopyOptions:self.currentOptionView.categoryItem.lastSubmitedOptions];
+            [newOptionsArray replaceObjectAtIndex:idx withObject:newOptions];
+            self.options = newOptionsArray.copy;
+
+            // 在隐藏的时候，不刷新列表，避免用户看到选项变动
+            // 需要更新选项列表，是因为隐藏的时候，会根据列表的选中内容调整标题
+            [self.currentOptionView updateOptions:newOptions needReloadData:YES];
+        } else {
+           // 如果有父选项打开了，但是没有选中任何子选项，把此父选项取消选中
+            NSArray *options = self.options[idx];
+            for (TTCategoryMenuBarOptionItem *option in options) {
+                [option unselectedIfNoChildSelected];
+            }
+        }
     }
 }
 
