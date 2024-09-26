@@ -50,9 +50,9 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _titleAttributes = @{NSFontAttributeName:[UIFont systemFontOfSize:15],
+        _titleAttributes = @{NSFontAttributeName:[UIFont systemFontOfSize:14],
                              NSForegroundColorAttributeName:TTCategoryMenuBarBlackColor()};
-        _selectedTitleAttributes = @{NSFontAttributeName:[UIFont systemFontOfSize:15],
+        _selectedTitleAttributes = @{NSFontAttributeName:[UIFont systemFontOfSize:14],
                                      NSForegroundColorAttributeName:TTCategoryMenuBarBlueColor()};
         _iconTitleSpace = 10;
     }

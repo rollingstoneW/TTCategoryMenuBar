@@ -37,8 +37,8 @@ typedef NS_ENUM(NSUInteger, TTCategoryMenuBarCategoryStyle) {
 @property (nonatomic, assign) BOOL showDoneButton; // 是否展示确认按钮，默认位NO，与childAllowsMultipleSelection是或关系
 
 @property (nonatomic,   copy) NSString *title; // 标题
-@property (nonatomic,   copy) NSDictionary *titleAttributes; // 标题富文本样式，默认字体14，颜色333333
-@property (nonatomic,   copy) NSDictionary *selectedTitleAttributes; //标题选中的富文本样式，默认字体14，颜色2684ff
+@property (nonatomic,   copy) NSDictionary *titleAttributes; // 标题富文本样式，默认字体14，颜色4C4C4C
+@property (nonatomic,   copy) NSDictionary *selectedTitleAttributes; //标题选中的富文本样式，默认字体14，颜色337DFF
 @property (nonatomic,   copy) NSAttributedString *attributedTitle; // 富文本标题，如果设置这个会忽略titleAttributes
 @property (nonatomic,   copy) NSAttributedString *selectedAttributedTitle; // 选中的富文本标题，如果设置这个会忽略selectedTitleAttributes
 @property (nonatomic, assign) BOOL shouldUseSelectedOptionTitle; // 是否使用选中选项的标题作为标题，默认NO
@@ -79,8 +79,8 @@ typedef NS_ENUM(NSUInteger, TTCategoryMenuBarCategoryStyle) {
 @interface TTCategoryMenuBarOptionItem : NSObject
 
 @property (nonatomic,   copy) NSString *title; // 标题
-@property (nonatomic,   copy) NSDictionary *titleAttributes; // 标题富文本样式，默认字体15，颜色333333
-@property (nonatomic,   copy) NSDictionary *selectedTitleAttributes; //标题选中的富文本样式，默认字体15，颜色2684ff
+@property (nonatomic,   copy) NSDictionary *titleAttributes; // 标题富文本样式，默认字体14，颜色4C4C4C
+@property (nonatomic,   copy) NSDictionary *selectedTitleAttributes; //标题选中的富文本样式，默认字体14，颜色337DFF
 @property (nonatomic,   copy) NSAttributedString *attributedTitle; // 富文本标题，如果设置这个会忽略titleAttributes
 @property (nonatomic,   copy) NSAttributedString *selectedAttributedTitle; // 选中的富文本标题，如果设置这个会忽略selectedTitleAttributes
 
