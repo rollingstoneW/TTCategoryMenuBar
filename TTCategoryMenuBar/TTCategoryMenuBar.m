@@ -335,7 +335,7 @@
         [self resetToLastSubmitedOptionsIfNeeded:idx isCommit:isCommit];
     }
     
-    BOOL isSelected = self.currentOptionView.selectedOptions.count > 0 || self.currentOptionView.categoryItem.style == TTCategoryMenuBarCategoryStyleNoneData;
+    BOOL isSelected = (self.currentOptionView.selectedOptions.count > 0 && self.currentOptionView.categoryItem.hasSubmitData) || self.currentOptionView.categoryItem.style == TTCategoryMenuBarCategoryStyleNoneData ;
     self.currentOptionView.categoryItem.isSelected = isSelected;
     self.currentButtonItem.selected = isSelected;
     if (isSelected) {
