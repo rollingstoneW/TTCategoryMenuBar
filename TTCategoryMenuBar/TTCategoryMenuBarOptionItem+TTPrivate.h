@@ -45,6 +45,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong, nullable) NSArray<TTCategoryMenuBarOptionItem *> *lastSubmitedOptions;
 
+@property (nonatomic, strong, nullable) NSArray<TTCategoryMenuBarOptionItem *> *initializedOptions;
+
 @end
 
 NS_ASSUME_NONNULL_END

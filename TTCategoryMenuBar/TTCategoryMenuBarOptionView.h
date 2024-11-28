@@ -80,7 +80,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)selectedOptionsDidChange; // 选中数据发生变化
 
-- (void)updateOptions:(NSArray<TTCategoryMenuBarOptionItem *> *)options needReloadData:(BOOL)needReloadData; // 更新数据， needReloadData:是否需要刷新列表
+// 更新数据，needReloadData:是否需要刷新列表，
+- (void)updateOptions:(NSArray<TTCategoryMenuBarOptionItem *> *)options needReloadData:(BOOL)needReloadData;
 
 - (void)commit; // done按钮事件
 - (void)reset; // reset按钮事件，会重置数据

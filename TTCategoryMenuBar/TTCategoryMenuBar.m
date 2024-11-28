@@ -299,6 +299,8 @@
         [self.backgroundView addSubview:optionView];
         // 把初始数据写入上次提交的数据
         [self setInitialDataToLastSubmitedOptionsIfNeeded:item];
+        // 记录初始数据
+        [self recordInitialDataIfNeeded:item];
         
         [optionView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.bottom.equalTo(self.barItemContainerView.mas_bottom);
@@ -405,6 +407,14 @@
 }
 
 - (void)categoryBarOptionViewDidResetOptions:(__kindof TTCategoryMenuBarOptionView *)categoryBarOptionView {
+    NSInteger idx = [self.items indexOfObject:categoryBarOptionView.categoryItem];
+    // 重置完之后，optionView里的options是深拷贝生成的新的数组，需要替换掉self.options，保持两个地方是同一份数据，避免改了一个地方，另一个地方不生效
+    if (idx != NSNotFound && categoryBarOptionView.options != self.options[idx]) {
+        NSMutableArray *newOptionsArray = self.options.mutableCopy;
+        NSArray *newOptions = categoryBarOptionView.options;
+        [newOptionsArray replaceObjectAtIndex:idx withObject:newOptions];
+        self.options = newOptionsArray.copy;
+    }
     if ([self.delegate respondsToSelector:@selector(categoryMenuBar:didResetCategory:)]) {
         [self.delegate categoryMenuBar:self didResetCategory:self.currentButtonItem.tag];
     }
@@ -502,17 +512,23 @@
         return;
     }
     NSArray *options = self.options[idx];
-//    BOOL hasSelectedChild = NO;
-//    for (TTCategoryMenuBarOptionItem *option in options) {
-//        if ([option hasSelectedChild]) {
-//            hasSelectedChild = YES;
-//            break;
-//        }
-//    }
-    // 如果初始数据有选中数据，就把初始数据记录为上次提交的数据
-//    if (hasSelectedChild) {
-        item.lastSubmitedOptions = [TTCategoryMenuBarOptionItem deepCopyOptions:options];
-//    }
+    item.lastSubmitedOptions = [TTCategoryMenuBarOptionItem deepCopyOptions:options];
+}
+
+- (void)recordInitialDataIfNeeded:(TTCategoryMenuBarCategoryItem *)item {
+    if (item.resetStyle != TTCategoryMenuBarCategoryResetToInit) {
+        return;
+    }
+    // 如果已经记录过了，就不再记录
+    if (item.initializedOptions) {
+        return;
+    }
+    NSInteger idx = [self.items indexOfObject:item];
+    if (idx == NSNotFound || idx >= self.options.count) {
+        return;
+    }
+    NSArray *options = self.options[idx];
+    item.initializedOptions = [TTCategoryMenuBarOptionItem deepCopyOptions:options];
 }
 
 - (void)resetToLastSubmitedOptionsIfNeeded:(NSInteger)idx isCommit:(BOOL)isCommit {

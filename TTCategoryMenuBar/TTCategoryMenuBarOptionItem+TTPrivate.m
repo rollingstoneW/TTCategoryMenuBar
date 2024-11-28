@@ -216,4 +216,12 @@
     objc_setAssociatedObject(self, @selector(lastSubmitedOptions), lastSubmitedOptions, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
+- (NSArray<TTCategoryMenuBarOptionItem *> *)initializedOptions {
+    return objc_getAssociatedObject(self, _cmd);
+}
+
+- (void)setInitializedOptions:(NSArray<TTCategoryMenuBarOptionItem *> *)initializedOptions {
+    objc_setAssociatedObject(self, @selector(initializedOptions), initializedOptions, OBJC_ASSOCIATION_COPY_NONATOMIC);
+}
+
 @end

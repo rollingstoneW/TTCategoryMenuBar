@@ -504,13 +504,34 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     } else if (self.categoryItem.resetStyle == TTCategoryMenuBarCategoryResetToLastCommit) {
         // 如果之前提交过，重置到上一次提交的数据
         if (self.categoryItem.lastSubmitedOptions) {
-            NSArray *newOptions = [TTCategoryMenuBarOptionItem deepCopyOptions:self.categoryItem.lastSubmitedOptions];
+            NSArray *newOptions = [self deepCopyOptionsAndAutoSelect:self.categoryItem.lastSubmitedOptions];
             [self updateOptions:newOptions needReloadData:YES];
         } else {
             // 全部重置
             [self resetAll];
         }
+    } else if (self.categoryItem.resetStyle == TTCategoryMenuBarCategoryResetToInit) {
+        if (self.categoryItem.initializedOptions) {
+            NSArray *newOptions = [self deepCopyOptionsAndAutoSelect:self.categoryItem.initializedOptions];
+            [self updateOptions:newOptions needReloadData:YES];
+        }
     }
+}
+
+- (NSArray *)deepCopyOptionsAndAutoSelect:(NSArray<TTCategoryMenuBarOptionItem *> *)options {
+    NSArray<TTCategoryMenuBarOptionItem *> *newOptions = [TTCategoryMenuBarOptionItem deepCopyOptions:options];
+    //重置之后，默认选中第一个有选中子选项的选项
+    [newOptions enumerateObjectsUsingBlock:^(TTCategoryMenuBarOptionItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if (obj.childOptions.count && [obj hasSelectedChild]) {
+            if ([obj isKindOfClass:[TTCategoryMenuBarListOptionItem class]]) {
+                ((TTCategoryMenuBarListOptionItem *)obj).isSelected = YES;
+            } else if ([obj isKindOfClass:[TTCategoryMenuBarSectionOptionItem class]]) {
+                ((TTCategoryMenuBarSectionOptionItem *)obj).isSelected = YES;
+            }
+            *stop = YES;
+        }
+    }];
+    return newOptions;
 }
 
 - (void)resetAll {
@@ -526,6 +547,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
 
 - (void)updateOptions:(NSArray<__kindof TTCategoryMenuBarOptionItem *> *)options needReloadData:(BOOL)needReloadData {
     self.options = options;
+    
     if ([self.categoryItem isKindOfClass:[TTCategoryMenuBarListCategoryItem class]]) {
         self.listOptions = options;
     } else if ([self.categoryItem isKindOfClass:[TTCategoryMenuBarSectionCategoryItem class]]) {

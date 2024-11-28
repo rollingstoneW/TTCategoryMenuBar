@@ -26,6 +26,8 @@ typedef NS_ENUM(NSUInteger, TTCategoryMenuBarCategoryResetStyle) {
     TTCategoryMenuBarCategoryResetAll,
     // 点击重置到上一次提交时的数据
     TTCategoryMenuBarCategoryResetToLastCommit,
+    // 点击重置到初始化时的数据
+    TTCategoryMenuBarCategoryResetToInit
 };
 
 @interface TTCategoryMenubarOptionButtonBackgroundConfig : NSObject
