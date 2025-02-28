@@ -20,6 +20,9 @@ NS_ASSUME_NONNULL_BEGIN
 // 加载selectedChildOptions，在TTCategoryMenuBarOptionView外部调用此方法，后面一定要调用clearSelectedChildren
 - (BOOL)loadSelectedChild;
 
+// 是否是全选按钮
+- (BOOL)isSelectAllItem;
+
 // 清理selectedChildOptions
 - (void)clearSelectedChildren;
 

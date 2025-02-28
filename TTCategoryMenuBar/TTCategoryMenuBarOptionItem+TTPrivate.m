@@ -55,6 +55,13 @@
     return NO;
 }
 
+- (BOOL)isSelectAllItem {
+    if ([self respondsToSelector:@selector(isSelectAll)]) {
+        return [(id)self isSelectAll];
+    }
+    return NO;
+}
+
 - (void)clearSelectedChildren {
     [self.selectedChildOptions removeAllObjects];
     self.selectedChildOptions = nil;

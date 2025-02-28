@@ -337,14 +337,18 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     
     TTCategoryMenubarOptionButtonIconConfig *iconConfig = [config iconConfigForState:TTCategoryMenubarOptionButtonStateNormal];
     [self setIcon:iconConfig forButton:button];
-
+    
     return button;
 }
 
 - (void)resetButtonsWithSelectedOptions:(NSArray *)selectedOptions {
     NSInteger totalCount = 0;
     for (TTCategoryMenuBarOptionItem *option in selectedOptions) {
-        totalCount += [self totalChildrenCountWithOption:option];
+        BOOL unselectsOthersWhenSelectAll = NO;
+        if ([option isKindOfClass:[TTCategoryMenuBarSectionItem class]]) {
+            unselectsOthersWhenSelectAll = [(TTCategoryMenuBarSectionItem *)option unselectsOthersWhenSelectAll];
+        }
+        totalCount += [self totalChildrenCountWithOption:option unselectsOthersWhenSelectAll:unselectsOthersWhenSelectAll];
     }
     TTCategoryMenubarOptionButtonState state = totalCount > 0 ? TTCategoryMenubarOptionButtonStateHasSelectedItems : TTCategoryMenubarOptionButtonStateNormal;
     
@@ -455,7 +459,7 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     } else {
         titleSize = [button.titleLabel.text sizeWithAttributes:@{NSFontAttributeName:button.titleLabel.font}];
     }
-
+    
     CGFloat insetAmount = ABS(space / 2.0);
     if (space > 0) {
         button.imageEdgeInsets = UIEdgeInsetsMake(0, -insetAmount, 0, insetAmount);
@@ -468,15 +472,27 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     }
 }
 
-- (NSInteger)totalChildrenCountWithOption:(TTCategoryMenuBarOptionItem *)option {
+- (NSInteger)totalChildrenCountWithOption:(TTCategoryMenuBarOptionItem *)option unselectsOthersWhenSelectAll:(BOOL)unselectsOthersWhenSelectAll {
     NSInteger totalCount = 0;
     if (option.childOptions) {
         for (TTCategoryMenuBarOptionItem *child in option.childOptions) {
-            totalCount += [self totalChildrenCountWithOption:child];
+            totalCount += [self totalChildrenCountWithOption:child unselectsOthersWhenSelectAll:unselectsOthersWhenSelectAll];
         }
     } else {
         if (option.isSelfSelected) {
-            totalCount ++;
+            // 如果是列表选项，全选按钮不加1
+            if ([option isKindOfClass:[TTCategoryMenuBarListOptionItem class]]) {
+                if (!option.isSelectAllItem) {
+                    totalCount ++;
+                }
+            } else if ([option isKindOfClass:[TTCategoryMenuBarSectionOptionItem class]]) {
+                // 如果是分组选项的全选按钮，如果会取消其他选项则加1，否则不加1
+                if (!option.isSelectAllItem || unselectsOthersWhenSelectAll) {
+                    totalCount ++;
+                }
+            } else {
+                totalCount ++;
+            }
         }
     }
     return totalCount;
