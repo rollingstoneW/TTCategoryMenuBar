@@ -511,6 +511,11 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
     if ([self.delegate respondsToSelector:@selector(categoryBarOptionView:didCommitOptions:)]) {
         [self.delegate categoryBarOptionView:self didCommitOptions:self.selectedOptions];
     }
+    
+    TTCategoryMenubarOptionButtonConfig *doneConfig = [self.categoryItem.buttonsConfig buttonConfigForStyle:TTCategoryMenubarOptionButtonStyleDone];
+    if (doneConfig.didClickButton) {
+        doneConfig.didClickButton(doneConfig);
+    }
 }
 
 - (void)reset {
@@ -531,6 +536,10 @@ static NSString *const TTCategoryMenuBarCellID = @"cell";
             NSArray *newOptions = [self deepCopyOptionsAndAutoSelect:self.categoryItem.initializedOptions];
             [self updateOptions:newOptions needReloadData:YES];
         }
+    }
+    TTCategoryMenubarOptionButtonConfig *resetConfig = [self.categoryItem.buttonsConfig buttonConfigForStyle:TTCategoryMenubarOptionButtonStyleReset];
+    if (resetConfig.didClickButton) {
+        resetConfig.didClickButton(resetConfig);
     }
 }
 

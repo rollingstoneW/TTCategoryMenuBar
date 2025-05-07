@@ -87,6 +87,8 @@ typedef NS_ENUM(NSUInteger, TTCategoryMenuBarCategoryResetStyle) {
 
 @property (nonatomic, assign) TTCategoryMenuBarCategoryResetStyle resetStyle;
 
+@property (nonatomic, copy, nullable) void(^didClickButton)(TTCategoryMenubarOptionButtonConfig *config);
+
 - (void)setBackgroundConfig:(TTCategoryMenubarOptionButtonBackgroundConfig *)config forState:(TTCategoryMenubarOptionButtonState)state;
 - (TTCategoryMenubarOptionButtonBackgroundConfig *)backgroundConfigForState:(TTCategoryMenubarOptionButtonState)state;
 
